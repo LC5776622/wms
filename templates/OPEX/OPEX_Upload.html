@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{%load custom_filters%}
+{% block title %} OPEX Upload{% endblock title %}
+
+{% block body %}
+<div class="container col-md-6 my-3" style="text-align:center;">
+
+
+    <div class="btn-group">
+            <a href="{% url 'OPEX_Input'%}" class="btn btn-sm btn-outline-dark active" aria-current="page">OPEX Data Upload</a>
+            {% if request.user|user_in_group:"Site-Admin"%}
+            <a href="{% url 'GL_Input' %}" class="btn btn-sm btn-outline-dark">Expense Categories</a>
+            {% endif %}
+            <a href="{% url 'Forex_Input' %}" class="btn btn-sm btn-outline-dark">USD Rate</a>
+    </div>
+
+    <div class="container-fluid my-3 shadow" style="border: solid 1px lightgrey; padding: 10px; text-align:center;">
+    
+            <h4>Upload OPEX Data</h4>
+            <br>
+              <form class="g-3" method="post" action="/opexupload" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group container col-md-9">
+                    <label for="opexfile" class="form-label">Select OPEX Data File To Upload:</label>
+                    <input class="form-control" style="color: red;" type="file" name="opexfile" id="opexfile" required>
+                </div>
+
+                <div class="container col-12 my-3">       
+                    <button type="submit" class="btn btn-sm btn-outline-dark">Upload</button>
+                </div>
+            </form>
+
+            {% if success_message %}
+            <div class="alert alert-success" role="alert">
+                {{success_message}}
+            </div>
+            {% elif error_message %}
+            <div class="alert alert-warning" role="alert">
+                <b>Warning!</b> {{error_message}}
+            </div>
+            {% endif %}
+            
+            <div style="text-align: left; font-size: smaller;" >
+                <h6> <u>Please Note:</u></h6>
+                <p> 1. Upload the file in correct format. Refer to sample file below for required format.<br>
+                2. While uploading, please delete the rows from excel file where amount is <b style="color: red;">0</b> in Plan, Forecast and Accrual. It will keep the upload and data access faster<br>
+                3. <b style="color: red;">DO NOT REFRESH</b> the page while uplaod is in progress. Upload may take up to 5 minutes depending on size of the data.
+            </p>
+            </div>
+            <div class="form-group container-flex" style="text-align: right;">
+                <a href="static/samples/OpexDataSampleFile.xlsx">Sample File</a>
+            </div>
+
+    </div>
+
+</div>
+  
+<div class="container-fluid">
+    {% if request.user|user_in_group:"Admin-Leaders"%}
+{% include "OPEX/OPEX_Input.html" %}
+    {% endif %}
+</div>
+{% endblock body %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Duplicate Entry{% endblock %}
+{% block body %}
+<div class="container col-md-6 my-3" style="text-align: center;">
+  <div class="alert alert-danger" role="alert">
+    <img src="/static/img/duplicate.png" alt="Warning" height="40"> 
+    <h3>Duplicate Entry Warning!!!</h3>
+    <hr>
+        {% for data in InvDataset %}
+        <p>Details of Invoice No. <b>{{data.Invoice_No}}</b> of <b>{{data.Invoice_Vendor}}</b> for the month of <b>{{data.Invoice_Month}}</b> from <b>{{data.Invoice_Location}}</b> location already have been entered.</p>
+        <p>Please go to <a href="{% url 'InvoiceView' %}"> <b>View Invoice Data</b></a> section under <b>View Data</b> tab to View & Edit existing details.</p>
+      {% endfor %}
+    </div>
+    <br>
+    <div class="col" >
+    <p>Go Back To Invoice Data Input Page</p>
+    <a class="btn btn-sm btn-warning" href="{% url 'Invoice_Input' %}" role="button">Go Back</a>
+  </div>
+</div>
+{% endblock %}

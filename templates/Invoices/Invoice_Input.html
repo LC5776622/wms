@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Invoice Input{% endblock %}
+{% block body %}
+<script type="text/javascript" src="/static/scripts/vendor-filter.js"></script>
+<style>
+  tr>th{vertical-align: middle;text-align:left;}
+</style>
+
+<div class="container col-md-5 my-3 shadow" style="text-align: center; padding:3px; background-color:#F9F5F1;">
+  <h4>Invoice Tracker Input</h4>
+</div>
+
+<div class="container col-md-5 shadow" style="padding:10px;">
+  <form method="POST" action="/invoiceinput">
+    {% csrf_token %}
+    <table class="table table-sm table-hover" id="myTable">
+        <tbody class="form-group">
+          <tr>
+            <th>Month:</th>
+            <td><input type="month" id="invoiceMonth" class="form-control" name="invoiceMonth" required></td>
+          </tr>
+          <tr>
+            <th>Country:</th>
+            <td>
+              <select id="country" name="country" class="searchable form-select" required>
+                {% if request.user|user_in_group:"Admin-Leaders" %}
+                <option hidden selected value="">--Select Country--</option>
+                {% for country in AllCountries %}
+                <option value="{{ country }}">{{ country }}</option>
+                {% endfor %}
+                {% else %}
+                <option  value="{{user_country}}">{{user_country}}</option>
+                {% endif %}
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <th>Location:</th>
+            <td>
+              <select id="location" name="location" class="searchable form-select" required>
+                {% if request.user|user_in_group:"Admin-Leaders" %}
+                <option hidden selected value="">--Select Location--</option>
+                {% for location in locations %}
+                <option value="{{ location }}">{{ location }}</option>
+                {% endfor %}
+                {% else %}
+                <option value="{{user_location}}">{{user_location}}</option>
+                {% endif %}
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <th>Expense Category:</th>
+            <td>
+              <select id="category" name="category" class="searchable form-select" required>
+                <option hidden selected value="">--Select Category--</option>
+                {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+            </td>
+          </tr>
+          <tr>
+            <th>Vendor:</th>
+            <td>
+              <select class="searchable form-select" name="vendor" id="vendor" required>
+                <option hidden selected value="">--Select Vendor--</option>
+                {% for vendor in vendors %}
+                <option value="{{ vendor.vendor}}" data-location="{{ vendor.location }}" data-category="{{ vendor.category }}">{{ vendor.vendor }}</option>
+                {% endfor %}
+            </select>
+            </td>
+          </tr>
+          <tr>
+            <th>Invoice Number:</th>
+            <td><input type="text" class="form-control" name="invoiceNo" onkeypress="CheckSpace(event)" required></td>
+          </tr>
+          <tr>
+            <th>PO Number:</th>
+            <td><input type="text" class="form-control" name="invoicePO" onkeypress="CheckSpace(event)" placeholder="Optional"></td>
+          </tr>
+          <tr>
+            <th>Invoice Date:</th>
+            <td><input type="date" class="form-control" name="invoiceDate" required></td>
+          </tr>
+          <tr>
+            <th>Invoice Amount:</th>
+            <td><input type="number" class="form-control" name="invoiceAmount" required step="0.01"></td>
+          </tr>
+          <tr>
+            <th>Invoice Status:</th>
+            <td>
+              <select name="invoiceStatus" class="form-select">
+                  <option hidden selected value="" required>--Invoice Status--</option>
+                  <option value="In Process">In Process</option>
+                  <option value="Invoice Paid">Invoice Paid</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <th>Payment Date:</th>
+            <td><input type="date" class="form-control" name="paymentDate"></td>
+          </tr>
+          <tr>
+            <th>Invoice Processed By:</th>
+            <td>
+              <select id="processedBy" name="processedBy" class="form-select" required>
+                {% if request.user|user_in_group:"Admin-Leaders" %}
+                <option hidden selected value="">--Invoice Processed By--</option>
+                {% for user in allUsers %}
+                <option value="{{ user }}">{{ user }}</option>
+                {% endfor %}
+                {% else %}
+                {% for user in locationUsers %}
+                <option hidden selected value="{{request.user.first_name}} {{request.user.last_name}}">{{request.user.first_name}} {{request.user.last_name}}</option>
+                <option value="{{ user }}">{{ user }}</option>
+                {% endfor %}
+                {% endif %}
+              </select>
+            </td>
+          </tr>
+        </tbody>
+    </table>
+      <div style="text-align:center;">
+        <input type="submit" class="btn btn-sm btn-outline-dark">
+      </div>
+  </form>
+  {% if success_message %}
+  <div class="container alert alert-success" role="alert" style="text-align:center;">
+    {{success_message}}
+  </div>
+  {% endif %}
+</div>
+<script src="/static/scripts/noSpace.js"></script>
+{% endblock %}
+

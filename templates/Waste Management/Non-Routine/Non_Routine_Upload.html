@@ -1,0 +1,30 @@
+{% load static %}
+{%load custom_filters%}
+<div class="container-fluid shadow my-3" style="text-align:center; padding: 10px;">
+    <div class="container-flex" style="border: solid lightgrey 1px; text-align:center; padding: 10px;">
+        <h4>Upload Non-Routine Waste Disposal Details</h4>
+        <form method="post" action="/wmnr_upload" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group container col-md-6 my-3">
+                <label for="nonroutinefile" class="form-label">Select Non-Routine Waste Disposal Details File To Upload:</label>
+                <input class="form-control" style="color: red;" type="file" name="nonroutinefile" id="nonroutinefile" required>
+            </div>
+            <div class="container my-3">       
+            <button type="submit" class="btn btn-sm btn-outline-dark">Upload</button>
+            </div>
+        </form>
+        {% if success_message %}
+        <div class="alert alert-success" role="alert">
+            {{success_message}}
+        </div>
+        {% elif error_message %}
+        <div class="alert alert-warning" role="alert">
+            <b>Warning!</b> {{error_message}}
+        </div>
+        {% endif %}
+        <div class="form-group container" style="text-align: right;">
+            <a href="{% static 'samples/Non_Routine_Upload_Sample.xlsx' %}">Sample File</a>
+        </div>
+    </div>
+
+</div>

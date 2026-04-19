@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Update OPEX Data{% endblock %}
+
+{% block body %}
+
+<style>
+  thead{
+    background-color: #4BCD3E;
+    color: white;
+  }
+  tbody>tr:nth-child(odd){
+        background-color: #D0EDCE;
+    }
+  tbody>tr>th, tbody>tr>td{
+    text-align:left;
+    margin-left: 1rem;
+    padding-right: 1rem;
+  }
+</style>
+
+    <div class="container col-md-5 my-3 shadow" style="text-align: center; font-size:medium; padding: 10px">
+        <form class="row g-3" method="POST" action="{% url 'update_opex_data' opex_data_id=opex_data.id %}" id="opexForm" name="opexForm">
+            {% csrf_token %}
+            <table class="table-sm" id="myTable">
+              <thead>
+                <tr>
+                  <th>Description</th><th>Values</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                    <tr>
+                        <th>Month:</th><td>{{opex_data.OPEX_Month|get_month_name}}-{{opex_data.OPEX_Year}}</td>
+                    </tr>    
+                        </tr><th>Location:</th><td>{{opex_data.OPEX_Location}}</td>
+                    </tr> 
+                        <th>BUC:</th><td>{{opex_data.BU}}</td> 
+                    </tr>
+                    <tr>
+                        <th>Currency:</th><td>{{opex_data.Currency}}</td>   
+                    </tr>
+                    <tr>
+                        <th>GL Code:</th><td>{{opex_data.GL_Code}}</td>
+                    </tr>
+                    <tr>
+                        <th>GL Name:</th><td>{{opex_data.GL_Name}}</td>
+                    </tr>
+                    <tr>
+                        <th>Expense Description:</th><td>{{opex_data.GL_Desc}}</td>
+                    </tr>
+                    <tr>
+                        <th>Plan Amount:</th><td>{{opex_data.Plan}}</td>
+                    </tr>
+                    <tr>
+                        <th>Forecast Amount:</th><td><input class="form-control" type="number" name="Forecast" value="{{opex_data.Forecast}}" step="0.01"></td>
+                    </tr>
+                    <tr>
+                        <th>Accrual Amount:</th><td><input class="form-control" type="number" name="Accrual" value="{{opex_data.Accrual}}" step="0.01"></td>
+                    </tr>
+                    <tr>
+              </tbody>
+              
+            </table>
+            <div class="col-md-9" style="text-align:left;">
+                <input type="submit" class="btn btn-sm btn-outline-primary" value="Update">
+              </div>
+              <div class="col-md-3" style="text-align:right;">
+                <a class="btn btn-sm btn-warning" href="{% url 'OpexView' %}">Cancel</a>
+              </div>
+        </form>
+    </div>
+
+
+
+  <script>    
+    function CheckSpace(event)
+    {if(event.which ==32){
+      event.preventDefault(); 
+      return false;
+      } 
+    }
+  </script>
+
+
+  {% endblock %}
+
+
+
+    

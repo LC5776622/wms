@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+<style>
+  thead{
+      background-color:#4BCD3E;
+      color:white;
+  }
+
+ td, th{
+      border: 1px solid white;
+      text-align: center;
+  }
+
+  tbody>tr:nth-child(odd){
+      background-color: #D0EDCE;
+  }
+  tbody>tr:nth-child(even){
+      background-color: #E9F6E8;
+  }
+  
+</style>
+
+<div class="container-fluid my-5" style="text-align: center;">
+
+
+  <div class="alert alert-warning align-items-center my-5" role="alert">
+    <img src="/static/img/duplicate-list.png" alt="Duplicate" height="36">
+    <h5>Following records were excluded from upload as these are either duplicate entries in excel file or this data already present in database:</h5>
+  </div>
+  <table class="table table-hover table-sm" style="vertical-align: middle;" id="toExcel">
+    <thead>
+      <tr>
+        <th scope="row">Record ID</th>
+        <th scope="col">Country</th>
+        <th scope="col">Location</th>
+        <th scope="col">Category</th>
+        <th scope="col">Vendor Description</th>
+        <th scope="col">Vendor Name</th>
+        <th scope="col">Vendor Address</th>
+        <th scope="col">Vendor Email</th>
+        <th scope="col">Contact Person</th>
+        <th scope="col">Contact No.</th>
+      </tr>
+    </thead>
+    <tbody id="geeks">
+      {% for data in dataset05 %}
+      <tr> 
+        <th scope="row">{{data.id}}</th>
+        <td scope="row">{{data.country}}</td>
+        <td scope="row">{{data.location}}</td>
+        <td scope="row">{{data.category}}</td>
+        <td scope="row">{{data.vendor_desc}}</td>
+        <td scope="row">{{data.vendor}}</td>
+        <td scope="row">{{data.business_address}}</td>
+        <td scope="row">{{data.business_email}}</td>
+        <td scope="row">{{data.contact_person}}</td>
+        <td scope="row">{{data.contact_no}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <br><br>
+
+  <div class="container" style="text-align:center;">
+    <button class="button btn-primary my-2" onclick="exceller()">Download To Excel</button>
+  </div>
+
+  <br><br>
+  Go Back To Vendor Input Page.
+  <br>
+  
+  <a class="btn btn-sm btn-warning" href="{% url 'VendorInput' %}" role="button">Go Back</a>
+</div>
+
+      {% endblock body %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}MBR Data Input{% endblock%}
+{% block body %}
+<div class="container col-md-8 my-2 shadow" style="text-align: center; padding:3px; background-color:#F9F5F1;">
+  <h4>MBR Tracker Input</h4>
+</div>
+
+<div class="container col-md-8 shadow" style="border: solid 1px lightgrey;">
+  <form class="row g-3" method="POST" action="/mbrinput">
+    {% csrf_token %}
+      <div class="col-md-4">
+        <label for="input_Country" class="form-label">Country:</label>
+        <select id="Country" name="inputCountry" class="form-select" required>
+          {% if request.user|user_in_group:"Admin-Leaders"%}
+          <option hidden selected value="">--Select Country--</option>
+          {% for country in countries %}
+          <option  value="{{country}}">{{country}}</option>
+          {% endfor %}
+          {% else %}
+          <option value="{{user_country}}">{{user_country}}</option>
+          {% endif %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="input_Location" class="form-label">Location:</label>
+        <select id="Location" name="inputLocation" class="form-select" required>
+          {% if request.user|user_in_group:"Admin-Leaders"%}
+          <option hidden selected value="">--Select Location--</option>
+        {% else %}
+          <option value="{{user_location}}">{{user_location}}</option>
+          {% endif %}
+        </select>
+        
+      </div>
+      <div class="col-md-4">
+        <label for="inputMonth" class="form-label">Month:</label>
+        <input type="Month" class="form-control" name="inputMonth" id="inputMonth" required>
+      </div>
+
+      <div class="col-md-3">
+        <label for="AreaSQFT" class="form-label">Area (SQFT):</label>
+        <input type="number" class="form-control" name="AreaSQFT" id="AreaSQFT" required>
+      </div>
+
+      <div class="col-md-3">
+        <label for="TotalSeats" class="form-label">Total Seats:</label>
+        <input type="number" class="form-control" name="TotalSeats" id="TotalSeats" required>
+      </div>
+
+      <div class="col-md-3">
+        <label for="Headcount" class="form-label">Headcount:</label>
+        <input type="number" class="form-control" name="Headcount" id="Headcount" required>
+      </div>
+
+      <div class="col-md-3">
+        <label for="OccupiedSeats" class="form-label">Occupied Seats:</label>
+        <input type="number" class="form-control" name="OccupiedSeats" id="OccupiedSeats" required max>
+      </div>
+<hr>
+      <div class="col-md-3">
+        <label for="Laptop" class="form-label">Laptop:</label>
+        <input type="number" class="form-control" name="Laptop" id="Laptop" required>
+      </div>
+
+      <div class="col-md-3">
+        <label for="Desktop" class="form-label">Desktop:</label>
+        <input type="number" class="form-control" name="Desktop" id="Desktop" required>
+      </div>
+
+      <div class="col-md-3">
+        <label for="Dongle" class="form-label">Dongle:</label>
+        <input type="number" class="form-control" name="Dongle" id="Dongle" required>
+      </div>
+
+      <div class="col-md-3">
+        <label for="Accessories" class="form-label">Accessories:</label>
+        <input type="number" class="form-control" name="Accessories" id="Accessories" required>
+      </div>
+<hr>
+
+      <div class="col-md-6">
+        <label for="Completed" class="form-label">Completed Project/ Tasks:</label>
+        <textarea type="text" class="form-control" name="Completed" id="Completed" spellcheck="True" placeholder="You can enter multiple updates separated by a semicolon ( ; )"></textarea>  
+      </div>
+      <div class="col-md-6">
+        <label for="WIP" class="form-label">Work In Progress:</label>
+        <textarea type="text" class="form-control" name="WIP" id="WIP" spellcheck='True' placeholder="You can enter multiple updates separated by a semicolon ( ; )"></textarea>   
+      </div>
+      
+      <b style="color:red;">***Please Leave The Updates Field Blank If There Are No Update Under Any Category For The Month.</b>
+
+      <div style="padding: 10px; text-align: center;" class="col-12">
+        <input type="submit" class="btn btn-sm btn-outline-dark">
+      </div>
+  </form>
+
+      {% if success_message %}
+      <div class=" flex alert alert-success" role="alert" style="text-align:center;">
+          {{success_message}}
+      </div>
+      {% endif %}
+      
+</div>
+
+<script>
+  const totalSeatsInput = document.getElementById('TotalSeats');
+  const occupiedSeatsInput = document.getElementById('OccupiedSeats');
+
+  function validateOccupiedSeats() {
+    if (parseInt(occupiedSeatsInput.value) > parseInt(totalSeatsInput.value)) {
+      occupiedSeatsInput.setCustomValidity('Occupied Seats count cannot be greater than Total Seats.');
+    } else {
+      occupiedSeatsInput.setCustomValidity('');
+    }
+  }
+
+  totalSeatsInput.addEventListener('input', validateOccupiedSeats);
+  occupiedSeatsInput.addEventListener('input', validateOccupiedSeats);
+</script>
+{% endblock %}

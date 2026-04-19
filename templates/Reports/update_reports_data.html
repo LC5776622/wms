@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{%load custom_filters%}
+{% block title %}Update Report Data {% endblock%}
+{% block body %}
+    <div class="container col-md-6 my-2 shadow" style="text-align: center; padding:3px; background-color:#F9F5F1;">
+      <h3>Update MBR Data</h3>
+    </div>
+    <div class="container col-md-6 shadow" style="text-align: center; background-color: rgb(247, 196, 167); padding: 5px; border: solid white 1px; ">
+      <b style="color: red;">Alert:</b> You are now updating <b>Report ID</b> <b style="color:red;"> {{report_data.id}}</b>. Kindly review & validate all details before submitting.
+    </div>
+
+  <div class="container col-md-6  my-2 shadow" style="text-align: center; padding:3px; background-color:#F9F5F1; padding:10px;">
+    <form class="row g-3" method="POST" action="{% url 'Update_CustomReports' reports_data_id=reports_data.id %}">
+      {% csrf_token %}
+      <div class="col-md-4">
+        <label for="inputMonth" class="form-label">Report ID</label>
+        <h5 style="background-color: bisque;" class="form-control"><b>{{reports_data.id}}</b></h5>
+      </div>
+
+        <div class="col-md-4">
+          <label for="Country" class="form-label">Country</label>
+          <select id="Country" name="Country" class="form-select" required>
+            <option hidden selected value="{{reports_data.country}}">{{reports_data.country}}</option>
+            {% if request.user|user_in_group:"Site-Admin" %}
+            <option value="All">All</option>
+            <option value="India">India</option>
+            <option value="Philippines">Philippines</option>
+            {% endif %}
+          </select>
+        </div>
+        
+        <div class="col-md-4">
+          <label for="Location" class="form-label">Location</label>
+          <select id="Location" name="Location" class="form-select" required>
+            <option hidden selected value="{{reports_data.location}}">{{reports_data.location}}</option>
+          </select>
+        </div>
+        <hr>
+          <div class="col-md-3">
+            <label for="AreaSQFT" class="form-label">Report Name</label>
+            <input type="text" class="form-control" name="ReportName" id="ReportName" value="{{reports_data.report_name}}" required>
+          </div>
+          <div class="col-md-9">
+            <label for="TotalSeats" class="form-label">Report URL</label>
+            <input type="text" class="form-control" name="ReportURL" id="ReportURL" value="{{reports_data.url}}" required>
+          </div>
+          <div class="col-md-6" style="text-align:left;">
+            <input type="submit" class="btn btn-sm btn-outline-primary" value="Update">
+          </div>
+  
+          <div class="col-md-6" style="text-align:right;">
+            <a class="btn btn-sm btn-warning" href="{% url 'ReportsData'%}">Cancel</a>
+          </div>
+      </form> 
+  </div>
+</div>
+</div>
+
+<script>
+  window.onload = function() {
+  const countryDropdown = document.getElementById("Country");
+  const locationDropdown = document.getElementById("Location");
+
+  const locationsByCountry = {
+      All: ["All Countries", "APAC"],
+    India: ["Bangalore", "Chennai", "Gurgaon", "Indore", "Hyderabad", "Mohali", "Mumbai", "Pune", "PAN India"],
+    Philippines: ["Manila", "Cebu City", "Makati City", "PAN Philippines"],
+  };
+
+  function updateLocationDropdown() {
+    const selectedCountry = countryDropdown.value;
+    locationDropdown.innerHTML = '<option hidden selected value="">Location</option>';
+    if (selectedCountry) {
+      locationsByCountry[selectedCountry].forEach(location => {
+        const option = document.createElement("option");
+        option.text = location;
+        option.value = location;
+        locationDropdown.add(option);
+      });
+    }
+  }
+  countryDropdown.addEventListener("change", updateLocationDropdown);
+};
+</script>
+{% endblock  %}
+
+

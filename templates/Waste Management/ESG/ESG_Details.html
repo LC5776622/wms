@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}ESG Data Update{% endblock  %}
+
+{% block body %}
+
+
+<div class="container my-3">
+    <h4 class="shadow" style="padding: 5px; background-color: rgb(233, 89, 6); color: aliceblue;">View ESG Details</h4>
+
+    <div class="container shadow" style="padding: 10px; border: solid 1px lightgrey;">
+        <table class="table table-sm table-borderless">
+            <thead>
+                <tr>
+                    <th>Record ID</th>
+                    <th>Year</th>
+                    <th>Quarter</th>
+                    <th>Month</th>
+                    <th>Country</th>
+                    <th>Location</th>
+                    <th>Function</th>
+                </tr>
+                
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ESG/{{esg_data.id}}</td>
+                    <td>{{esg_data.Year}}</td>
+                    <td>Q{{esg_data.Quarter}}</td>
+                    <td>{{esg_data.Month|get_month_name}}</td>
+                    <td>{{esg_data.Country}}</td>
+                    <td>{{esg_data.Location}}</td>
+                    <td>{{esg_data.Function}}</td>
+
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="table table-sm table-borderless">
+            <thead>
+                <tr>
+                    
+                    <th>Item Description</th>
+                    <th>Waste Category</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                </tr>
+                
+            </thead>
+            <tbody>
+                <tr>    
+                    <td>{{esg_data.Description}}</td>
+                    <td>{{esg_data.Category}}</td>
+                    <td>{{esg_data.Type}}</td>
+                    <td>{{esg_data.Severity}}</td>
+                    <td>{{esg_data.Unit}}</td>
+                    <td>{{esg_data.Quantity}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="table table-sm table-borderless">
+            <thead>
+                <tr>
+                    <th>Remarks</th>
+                    <th>Entered By</th>
+                    <th>Entered On</th>
+                    <th>Verified By</th>
+                    <th>Verified On</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{esg_data.Remarks}}</td>
+                    <td>{{esg_data.Entered_By.first_name}} {{esg_data.Entered_By.last_name}} ({{esg_data.Entered_By}})</td>
+                    <td>{{esg_data.Created_On}}</td>
+                    <td> {% if esg_data.Verified %}{{esg_data.Verified_By.first_name}} {{esg_data.Verified_By.last_name}} ({{esg_data.Verified_By}}) {% else %}-{% endif %}</td>
+                    <td> {% if esg_data.Verified %}{{esg_data.Updated_On}} {% else %}-{% endif %}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5>Evidences</h5>
+        <table class="table table-sm table-borderless">
+            <thead>
+                <tr>
+                    <th>Evidence 1</th>
+                    <th>Evidence 2</th>
+                    <th>Evidence 3</th>
+                    <th>Evidence 4</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td> {% if esg_data.ESG_Evidence1 == "" %}N/A{% else %}<a target="blank" href="{{esg_data.ESG_Evidence1.url}}">View Evidence 1</a>{% endif %}</td>
+                    <td> {% if esg_data.ESG_Evidence2 == "" %}N/A{% else %}<a target="blank" href="{{esg_data.ESG_Evidence2.url}}">View Evidence 2</a>{% endif %}</td>
+                    <td> {% if esg_data.ESG_Evidence3 == "" %}N/A{% else %}<a target="blank" href="{{esg_data.ESG_Evidence3.url}}">View Evidence 3</a>{% endif %}</td>
+                    <td> {% if esg_data.ESG_Evidence4 == "" %}N/A{% else %}<a target="blank" href="{{esg_data.ESG_Evidence4.url}}">View Evidence 4</a>{% endif %}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="container row" style="text-align: center;">
+            {% if not esg_data.Verified and request.user|user_in_group:"Admin-Leaders" %}
+            <form class="col-md-6" style="text-align: left;" method="POST" action="{% url 'ESG_Details' esg_id=esg_data.id %}">
+                {% csrf_token%}
+                {% if not esg_data.ESG_Evidence1 == "" %}
+                <input class="btn btn-success btn-sm" type="submit" value="Verify">
+                {% endif %}
+            </form>
+            {% endif %}
+            {% if esg_data.ESG_Evidence1 == "" %}
+            <div class="container" style="text-align:center;">
+                {% else %}
+            <div class="col-md-6" style="text-align:right;">
+                {% endif %}
+                <a class="btn btn-sm btn-warning" href="{% url 'ESG_Data'%}">Cancel</a>
+            </div>
+        </div>
+        {% if success_message %}
+        <div class="flex alert alert-success my-3" role="alert" style="text-align:center;">
+        {{success_message}}
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

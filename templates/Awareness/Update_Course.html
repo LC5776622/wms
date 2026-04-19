@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Update Presentation{% endblock %}
+{% block body %}
+
+<div class="container col-md-6 my-3 shadow" style=" border:solid 1px lightgrey; padding: 10px;">
+    <div class="container" style="background-color: green; color: white; border: solid 1px lightgray; padding: 5px;">
+        <h4>Awareness/ Training Courses Version Update Page</h4>
+    </div>
+    <div class="container my-3">
+        <h5 style="text-align: center;">Upload Updated '{{existing_course.title}}' Course File</h5>
+        <form class="row g-3" method="POST" enctype="multipart/form-data" >
+            {% csrf_token %}
+                <div class="col-md-9">
+                    <label class="form-label" for="title">Presentation Title:</label>
+                    <p class="form-control" type="text" name="title" id="title" value="{{existing_course.title}}">{{existing_course.title}}</p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="version">Current Version:</label>
+                    <p class="form-control" type="number" name="version" id="version" step="0.01" value"{{existing_course.version}}">{{existing_course.version|floatformat:2}}</p>
+                </div>
+                <div class="col-12">
+                    <label for="ChangeDesc">Change Description:</label>
+                    <textarea class="form-control" name="ChangeDesc" id="ChangeDesc" required></textarea>
+                </div>
+                <div class="col-12">
+                    <label for="pdf_file">Upload File:</label>
+                    <input style="color: red;" class="form-control" type="file" required name="pdf_file" id="pdf_file">
+                </div>
+            <div class="col-md-6" style="text-align: left;">
+                <button class="btn btn-outline-dark btn-sm" type="submit">Upload</button>
+            </div>
+            <div class="col-md-6" style="text-align: right;">
+                <a class="btn btn-warning btn-sm" href="{%url 'View_Courses'%}">Cancel</a>
+            </div>
+        </form>
+        {% if success_message %}
+        <div class=" flex alert alert-success" role="alert" style="text-align:center;">
+            {{success_message}}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock  %}

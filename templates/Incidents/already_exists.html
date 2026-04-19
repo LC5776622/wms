@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+
+<div class="container col-md-6 my-3" style="text-align: center;">
+  <div class="alert alert-danger shadow" role="alert">
+    <img src="/static/img/duplicate.png" alt="Warning" height="40"> 
+    <h3>Duplicate Entry Warning!!!</h3>
+    <hr>
+    {% for data in DuplicateInci %}
+    <p>Given incident, reported at <b>{{data.Report_Location}} location</b> in the month of <b>{{data.Report_Month}}</b> on <b>{{data.Report_Date}}</b> at <b>{{data.Report_Time}}</b>, already has been recorded on this portal.</p>
+    <p>Please go to <a href="incidentview"><b>View Incident Data</b></a> section under <b>View Data</b> tab to View & Edit existing Data.</P>
+    {% endfor %}
+  </div>
+  <br>
+  <div class="col"> 
+    <p>Go Back To Incident Data Input Page.</p>
+    <a class="btn btn-sm btn-warning" href="{% url 'IncidentInput' %}" role="button">Go Back</a>
+  </div>
+</div>
+
+      {% endblock body %}

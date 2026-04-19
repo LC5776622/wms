@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Edit Question{% endblock  %}
+{% block body %}
+<div class="container col-md-6 my-3">
+    <h4>Edit Questions ID: {{questions.id}}</h4>
+<form  method="POST" action="{% url 'Edit_Questions' question_id=questions.id %}">
+    {% csrf_token %}
+    <div class="container my-1 row">
+        <label class="form-label" for="courseSelect">Course Name:</label>
+        <select style="background-color:bisque" class="form-select" name="course" id="courseSelect">
+            <option value="{{questions.course_id}}">{{questions.course_name}}</option>
+        </select>
+    </div>
+
+    <div class="container row my-1">
+        <label class="form-label-sm" for="question_text">Question:</label>
+        <input class="form-control" type="text" name="question_text" id="question_text" value="{{questions.question_text}}" required>
+    </div>
+
+    <div class="container row my-1">
+        <label class="form-label-sm" for="option1">Option 1:</label>
+        <input class="form-control" type="text" name="option1" id="option1" value="{{questions.option1}}" required>
+    </div>
+
+    <div class="container row my-1">
+        <label class="form-label-sm" for="option2">Option 2:</label>
+        <input class="form-control"  type="text" name="option2" id="option2" value="{{questions.option2}}" required>
+    </div>
+    {% if questions.option3 %}
+    <div class="container row my-1">
+        <label class="form-label-sm" for="option3">Option 3:</label>
+        <input class="form-control" type="text" name="option3" id="option3" value="{{questions.option3}}">
+    </div>
+
+    <div class="container row my-1">
+        <label class="form-label-sm" for="option4">Option 4:</label>
+        <input class="form-control" type="text" name="option4" id="option4" value="{{questions.option3}}">
+    </div>
+    {% endif %}
+    <div class="container row my-1">
+        <label class="form-label-sm" for="correct_option">Correct Option:</label>
+        <input class="form-control" type="text" name="correct_option" id="correct_option" value="{{questions.correct_option}}" required>
+    </div>
+
+    <div class="container row my-3" style="text-align: center;">
+        <div class="col-md-6" style="text-align: left;">
+            <button class="btn btn-sm btn-outline-primary" type="submit">Update</button>
+        </div>
+        <div class="col-md-6" style="text-align:right;">
+            <a class="btn btn-sm btn-warning"  href="{% url 'View_Questions' %}">Cancel</a>
+        </div>
+    </div>
+</form>
+</div>
+{% endblock  %}

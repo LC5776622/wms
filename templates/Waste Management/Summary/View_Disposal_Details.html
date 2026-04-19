@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Waste Disposal Summary{% endblock  %}
+
+{% block body %}
+ <style>
+    .col-3>a{
+        text-decoration: none;
+        font-size: .8rem;
+        font-weight: bold;
+    }
+
+ </style>
+
+
+<div class="container-fluid my-3">
+    <h4 class="shadow" style="padding: 5px; background-color: rgb(233, 89, 6); color: aliceblue;">View Disposal Details</h4>
+    <div class="container-flex shadow" style="padding: 10px; border: solid 1px lightgrey;">
+
+        <table class="table table-sm table-borderless">
+                <thead>
+                    <tr>
+                        <th>Record ID</th>
+                        <th>Activity Date</th>
+                        <th>Country</th>
+                        <th>Location</th>
+                        <th>Activity Type</th>
+                        <th>Entered By</th>
+                        <th>Verified By</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>DISP/{{summary_data.UID}}</th>
+                        <td>{{summary_data.Date}}</td>
+                        <td>{{summary_data.Country}}</td>
+                        <td>{{summary_data.Location}}</td>
+                        <td>{{summary_data.Type}}</td>
+                        <td>{{summary_data.Entered_By.first_name}} {{summary_data.Entered_By.last_name}}</td>
+                        <td>{% if summary_data.Verified %}{{summary_data.Verified_By.first_name}} {{summary_data.Verified_By.last_name}} {% else %} <b style="color: red;">Pending</b>{% endif %}</td>
+                        
+                    </tr>
+                </tbody>
+        </table>
+        <div class="container row my-3" style="text-align: center;">
+                {% if summary_data.Evidence1.url != '' %}
+                <div class="col-3">
+                    1. <a target="blank" href="{{summary_data.Evidence1.url}}">Evidence File 1</a>
+                </div>
+                {% endif %}
+
+                {% if summary_data.Evidence2.url != '' %}
+                <div class="col-3">
+                    2. <a target="blank" href="{{summary_data.Evidence2.url}}">Evidence File 2</a>
+                </div>
+                {% endif %}
+
+                {% if summary_data.Evidence3.url != '' %}
+                <div class="col-3">
+                    3. <a target="blank" href="{{summary_data.Evidence3.url}}">Evidence File 3</a>
+                </div>
+                {% endif %}
+
+                {% if summary_data.Evidence4.url != '' %}
+                <div class="col-3">
+                    4. <a target="blank" href="{{summary_data.Evidence4.url}}">Evidence File 4</a>  
+                </div>
+                {% endif %}
+        </div>
+
+
+
+        <div class=" col-12 row" style="text-align:center;">
+            {% if summary_data.Verified %}
+            <div class="col-md-6" style="text-align:left;">
+            {% else %}
+            <div class="col-md-4" style="text-align:left;">
+            {% endif %}
+            
+                <a style="font-weight:bold; color:green;" type="button" class="btn btn-sm" href="{% url 'Upload_Evidences' summary_data.UID %}">
+                    {% if summary_data.Evidence1 == "" %}Upload Evidences{% else %}Re-Upload Evidences{% endif %}                   
+                    <img src="/static/img/upload.png" alt="Upload" height="15"></a>
+            </div>
+
+            {% if not summary_data.Verified %}
+            {% if request.user|user_in_group:"Admin-Leaders"%}
+            <div class="col-md-4" style="text-align: center;">
+                <form class="form-group"  method="POST" action="{% url 'Disp_Details' disp_id=summary_data.UID %}">
+                    {% csrf_token %}
+                    {% if not summary_data.Evidence1 == "" %}
+                    <input class="btn btn-success btn-sm" type="submit"  value="Verify">
+                    {% endif %}
+                </form>
+            </div>
+            {% endif %}
+            {% endif %}
+                
+            {% if summary_data.Verified %}
+            <div class="col-md-6" style="text-align:left;">
+            {% else %}
+            <div class="col-md-4" style="text-align:right;">
+            {% endif %}
+                <a class="btn btn-sm btn-warning" href="{% url 'Disp_Summary_Data'%}">Back</a>
+            </div>
+            
+        </div>
+    </div>
+
+    <table class="table table-sm table-borderless" >
+        <thead>
+                <tr>
+                    <th>Record ID</th>
+                    <th>Disposal Date</th>
+                    <th>Location</th>
+                    <th>Function</th>
+                    <th>Description</th>
+                    {% if waste_type %}
+                    <th>Waste Type</th>
+                    <th>Waste State</th>
+                    {% endif %}
+                    <th>Severity</th>
+                    <th>Disposal Type</th>
+                    <th>Unit</th>
+                    <th>Quantity</th>
+                    <th>Remarks</th>
+                </tr>
+        </thead>
+        <tbody>
+                {% for row in disp_details %}
+                <tr>
+                    <td> {% if waste_type %}NRW/ {% else %}EW/{% endif %}{{row.id}}</td>
+                  <td>{{row.Disposal_Date}}</td>
+                  <td>{{row.Location}}</td>
+                  <td>{{row.Function}}</td>
+                  <td>{{row.Description}}</td>
+                  {% if waste_type %}
+                  <td>{{row.Waste_Type}}</td>
+                  <td>{{row.Waste_State}}</td>
+                  {% endif %}
+                  <td>{{row.Severity}}</td>
+                  <td>{{row.Disposal_Type}}</td>
+                  <td>{{row.Unit}}</td>
+                  <td>{{row.Quantity}}</td>
+                  <td>{{row.Remarks}}</td>
+                  </tr>
+                  {% endfor %}
+        </tbody>
+    </table>
+
+
+</div>
+
+
+
+{% endblock %}

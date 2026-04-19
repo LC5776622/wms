@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+
+<div class="container col-md-6 my-3" style="text-align: center;">
+    <div class="alert alert-danger shadow" role="alert">
+      <img src="/static/img/duplicate.png" alt="Warning" height="40">
+      <h3>Duplicate Entry Warning!!!</h3>
+      <hr>
+      {% for data in duplicateESG %}
+      <p>ESG Data already been entered for <b>{{data.Location}}</b> for the Month of <b>{{data.Month|get_month_name}}-{{data.Year}}</b>.</p>
+      <p>Please go to <a href="{% url 'ESG_View' %}"><b>View ESG Data</b></a> section under <b>'View Data'</b> tab to View & Edit existing data.</p>
+      {% endfor %}
+    </div>
+    <br> 
+    <div class="col">
+      <p>Go Back To ESG Data Input Page.</p>
+      <a class="btn btn-warning" href="{% url 'ESG_Input'%}" role="button">Go Back</a>
+    </div>
+</div>
+{% endblock %}

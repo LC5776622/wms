@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Update Training Records{% endblock %}
+{% block body %}
+<div class="container col-md-9 shadow my-3" style="border: solid 1px lightgrey; padding: 10px;">
+    <h4>Verify Training Records</h4>
+    <div class="container-flex">
+        <table class="table table-sm table-borderless">
+            <thead>
+                <tr>
+                    <th>Country</th>
+                    <th>Location</th>
+                    <th>Subject</th>
+                    <th>Session Type</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{training_data.country}}</td>
+                    <td>{{training_data.location}}</td>
+                    {% for course in courses %}
+                    <td>{{course.course__title}}</td>
+                    {% endfor %}
+                    <td>{{training_data.session}}</td>
+                </tr>
+            </tbody>
+
+            <thead class="my-3">
+                <tr>
+
+                    <th>Training Frequency</th>
+                    <th>Planned Date</th>
+                    <th>Actual Date</th>
+                    <th>Conducted By</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>  
+                    <td>{{training_data.frequency}}</td>
+                    <td>{{training_data.planned_date}}</td>
+                    <td>{{training_data.actual_date}}</td>
+                    <td>{{training_data.conducted_by}}</td>
+                </tr>
+            </tbody>
+            <thead class="my-3">
+                <tr>  
+                    <th colspan="2">Attendee Teams</th>
+                    <th colspan="2">Attendees' Names</th>
+
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr> 
+                    <td colspan="2">{{training_data.attendee_teams}}</td>
+                    <td colspan="2">{{training_data.attendees}}</td>
+
+                </tr>
+            </tbody>
+            
+        </table>
+
+        <div class="container-fluid">
+            <form class="row" method="POST">
+                {% csrf_token %}
+                <div class="col-md-6" >
+                    <h6>Attachments:</h6>
+                    <a href="{{training_data.attendence_sheet.url}}" style="text-decoration: none; font-size: small;" target="_blank">Attendence Sheet</a>
+                    <br>
+                    <a href="{{training_data.training_images.url}}" style="text-decoration: none; font-size: small;" target="_blank">Training Images</a>
+                </div>
+                <div class="col-md-6">
+                    <label  for="VerifierRemarks">Remarks:</label>
+                    <textarea class="form-control" name="verifier_remarks" id="VerifierRemarks" cols="30" rows="2"></textarea>
+                </div>
+
+                <div class="container my-3" style="text-align: center;">
+                    <input class="btn btn-sm btn-success" type="submit" value="Verify">
+                </div>
+            </form>
+        </div>   
+    </div>             
+</div>
+
+
+
+{% endblock  %}

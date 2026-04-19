@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}E-Waste Disposal Update{% endblock  %}
+
+{% block body %}
+
+
+<div class="container col-10 my-3">
+    <h4 class="shadow" style="padding: 5px; background-color: rgb(233, 89, 6); color: aliceblue;">Update E-Waste Disposal Details</h4>
+    <div class="container shadow" style="text-align: center; background-color: rgb(247, 196, 167); padding: 5px; border: solid white 1px; ">
+        <b style="color: red;">Alert:</b> You are now updating <b>E-Waste Disposal Record ID:</b> <b style="color:red;">EW/{{e_waste_data.id}}</b>. Kindly review & validate all details before submitting.
+    </div>
+    <div class="container shadow" style="padding: 10px; border: solid 1px lightgrey;">
+        <form class="form-group row g-3" action="{% url 'Update_E_Waste' e_waste_data_id=e_waste_data.id %}" method="POST">
+            {% csrf_token %}
+                <div class="col-md-2">
+                    <label for="recordID" class="form-label-sm">Record ID</label>
+                    <h5 style="background-color: bisque;" class="form-control"><b>EW/{{e_waste_data.id}}</b></h5>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="disposalDate">Disposal Date:</label>
+                    <input class="form-control" name="disposalDate" id="disposalDate" type="date" value="{{e_waste_data.Disposal_Date}}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label-sm" for="Country">Country:</label>
+                    <select class="form-select" name="Country" id="Country">
+                        <option hidden selected value="{{e_waste_data.Country}}">{{e_waste_data.Country}}</option>
+                        <option value="India">India</option>
+                        <option value="Philippines">Philippines</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label-sm" for="Location">Location:</label>
+                    <select class="form-select" name="Location" id="Location">
+                        <option hidden selected value="{{e_waste_data.Location}}">{{e_waste_data.Location}}</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="Function">Function:</label>
+                    <select class="form-select" name="Function" id="Function">
+                        <option hidden selected value="{{e_waste_data.Function}}">{{e_waste_data.Function}}</option>
+                        <option value="Facilities">Facilities</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Physical Security">Physical Security</option>
+                        <option value="TPO">TPO</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label-sm" for="itemDesc">Item Description:</label>
+                    <input class="form-control" name="itemDesc" id="itemDesc" type="text" value="{{e_waste_data.Description}}">
+                </div>
+
+    
+            <div class="col-md-2">
+                <label class="form-label-sm" for="Category">Waste Category:</label>
+                <select class="form-select" name="Category" id="Category">
+                    <option hidden selected value="{{e_waste_data.Category}}">{{e_waste_data.Category}}</option>
+                    <option value="Electronic Components">Electronic Components</option>
+                    <option value="Electrical Equipment">Electrical Equipment</option>
+                    <option value="CPU/ Laptop">CPU/ Laptop</option>
+                    <option value="Computer Peripherals">Computer Peripherals</option>
+                    <option value="Mobile Phone">Mobile Phone</option>
+                    <option value="Batteries">Batteries</option>
+                    <option value="TV/ Monitor">TV/ Monitor</option>
+                    <option value="Speaker">Speaker</option>
+                    <option value="Lights">Lights</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label-sm" for="disposalType">Disposal Type:</label>
+                <select class="form-select" name="disposalType" id="disposalType">
+                    <option hidden selected value="{{e_waste_data.Disposal_Type}}">{{e_waste_data.Disposal_Type}}</option>
+                    <option value="Recycle">Recycle</option>
+                    <option value="Replacement">Replacement</option>
+                    <option value="Sale">Sale</option>
+                    <option value="Scrap">Scrap</option>                    
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label-sm" for="Severity">Waste Severity:</label>
+                <select class="form-select" name="Severity" id="Severity">
+                    <option hidden selected value="{{e_waste_data.Severity}}">{{e_waste_data.Severity}}</option>
+                    <option value="Bio-Degradable">Bio-Degradable</option>
+                    <option value="Non-Hazardous">Non-Hazardous</option>
+                    <option value="Non-Degradable">Non-Degradable</option>
+                    <option value="Hazardous">Hazardous</option>
+                </select>
+            </div>
+
+            <div class="col">
+                <label class="form-label-sm" for="Unit">Unit:</label>
+                <select class="form-select" name="Unit" id="Unit">
+                    <option hidden selected value="{{e_waste_data.Unit}}">{{e_waste_data.Unit}}</option>
+                    <option value="Count">Count</option>
+                    <option value="KG">KG</option>
+                    <option value="Liter">Liter</option>
+                    <option value="Meter">Meter</option>
+                    <option value="Lot">Lot</option>
+                    
+                </select>
+            </div>
+
+            <div class="col">
+                <label class="form-label-sm" for="Quantity">Quantity:</label>
+                <input class="form-control" name="Quantity" id="Quantity" type="number" value="{{e_waste_data.Quantity}}">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label-sm" for="disposedBy">Disposed By:</label>
+                <select class="form-select" name="disposedBy" id="disposedBy">
+                    <option hidden selected value="{{e_waste_data.Disposed_By}}">{{e_waste_data.Disposed_By}}</option>
+                    {% for user  in UserFilter %}
+                    <option value="{{user}}">{{user}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label-sm" for="verifiedBy">Verified By:</label>
+                <select class="form-select" name="verifiedBy" id="verifiedBy">
+                    <option hidden selected value="{{e_waste_data.Verified_By}}">{{e_waste_data.Verified_By}}</option>
+                    {% for user  in UserFilter %}
+                    <option value="{{user}}">{{user}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label-sm" for="Remarks">Remarks:</label>
+                <input class="form-control" name="Remarks" id="Remarks" type="text" value="{{e_waste_data.Remarks}}">
+            </div>
+            <div class="col-md-6" style="text-align: left;">
+                <input class="btn btn-outline-primary btn-sm" type="submit" value="Update">
+            </div>
+            <div class="col-md-6" style="text-align:right;">
+                <a class="btn btn-sm btn-warning" href="{% url 'E_Waste_View'%}">Cancel</a>
+              </div>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

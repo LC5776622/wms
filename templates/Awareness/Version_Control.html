@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Version control{% endblock %}
+{% block body %}
+<div class="container shadow col-md-6 g-3 my-3" style="text-align:center; padding: 10px;">
+    <div class="container g-3 my-3">
+    <h1 style="background-color: rgb(8, 211, 35); padding-bottom:5px; color: white;">Document Version Control</h1></div>
+    <div class="container g-3 my-3">
+        <table class="table table-borderless">
+            <tbody>
+                <tr>
+                    <th>Course Name:</th><td>{{course.title}}</td>
+                </tr>
+                <tr>
+                    <th>Document Version:</th><td> v {{course.version|floatformat:2}}</td>
+                </tr>
+                <tr>
+                    <th>Created On:</th> <td>{% if course.uploaded_by == none %}{{course.updated_at}} {% else %} {{course.uploaded_at}}{% endif %}</td>
+                </tr>
+                <tr>
+                    <th>Created By:</th><td> {% if course.uploaded_by == none %}{{course.updated_by.last_name}}, {{course.updated_by.first_name}} ({{course.updated_by}}) {% else %} {{course.uploaded_by.last_name}}, {{course.uploaded_by.first_name}} ({{course.uploaded_by}}){% endif %}</td>
+                </tr>
+                <tr>
+                    <th>Approved By:</th> <td>{% if course.is_approved %} {{course.approved_by.last_name}}, {{course.approved_by.first_name}} ({{course.approved_by}}) {% else %} - {% endif %}</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+    {% if course.is_approved %}
+    <div class="container col-md-9 g-3 my-3">
+        <a class="btn btn-sm btn-outline-info" href="{% url 'Slide_Show' course.id %}">Start Course</a>
+    </div>  
+        {% else %}
+
+    <div class="container g-3 my-3">
+        <p style="color: red;"><b>Alert:</b> Version Approval pending for <b>{{course.title}} v {{course.version|floatformat:2}}</b>.</p>
+        <p><b><a class="btn btn-sm btn-warning" href="{% url 'View_Courses' %}">Go Back</a> To Assigned Courses Page.</b></p>
+    </div>
+        {% endif %}
+
+    
+</div>
+
+
+{% endblock  %}

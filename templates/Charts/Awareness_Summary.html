@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% load custom_filters %}
+{% block title %}Awareness Summary{% endblock %}
+{% block body %}
+
+<div class="container-flex my-3" style="text-align: center;">
+
+    <div class="container-flex">
+        <form class='form-group row my-3' method="get" action="/awareness_sumamry">
+          <div class="col-md-3 row">
+            <div class="col-md-6">
+              <label for="course_year">Year:</label>
+              <select id="course_year" name="course_year">
+                  <option value="All">All</option>
+                  {% for year in course_years %}
+                  <option value="{{ year }}">{{ year }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="course_quarter">Qtr:</label>
+              <select id="course_quarter" name="course_quarter">
+                <option value="All">All</option>
+                {% for quarter in course_quarters %}
+                <option value="{{ quarter }}">Q{{quarter}}</option>
+                {% endfor %}
+              </select>
+            </div>
+        
+          </div>
+            {% if request.user|user_in_group:"Admin-Leaders"%}
+          <div class="col-md-9 row">
+            <div class="col-md-3">
+              <label for="user_country">Country:</label>
+              <select id="user_country" name="user_country">
+                  <option value="All">All</option>
+                  {% for country in user_countries %}
+                  <option value="{{ country }}">{{ country }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+          
+            <div class="col">
+                <label for="user_location">Location:</label>
+                <select id="user_location" name="user_location">
+                    <option value="All">All</option>
+                    {% for location in user_locations %}
+                    <option value="{{ location }}">{{ location }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <div class="col">
+              <label for="course_name">Course:</label>
+              <select id="course_name" name="course_name">
+                  <option value="All">All</option>
+                  {% for course in courses %}
+                  <option value="{{ course }}">{{ course }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+
+
+
+            <div class="col-md-1">
+                <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      {% if error_message %}
+      <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+          <img src="/static/img/info.png" alt="info" height="22">
+          <div class="container">
+              {{ error_message }}
+          </div>
+      </div>
+      
+    </div>
+    {% else %}
+
+    <div class="container">
+        <h4>Location-Wise Course Completion Summary</h4>
+        <table class="table table-sm table-hover table-borderless" id="toExcel">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Quarter</th>
+                    <th>Month</th>
+                    <th>Country</th>
+                    <th>Location</th>
+                    <th>Course Name</th>
+                    <th>Total Users</th>
+                    <th>Taken By</th>
+                    <th>Couese Taken %</th>
+                    <th>Average Score (%)</th>
+                </tr>
+            </thead>
+            
+            <tbody id="geeks">
+                {% for entry in summary_data %}
+                <tr>
+                    <td>{{entry.course__userresponse__course_year}}</td>
+                    <td>Q{{entry.course__userresponse__course_quarter}}</td>
+                    <td>{{entry.course__userresponse__course_month|get_month_name}}</td>
+                    <td>{{entry.user__userresponse__user_country}}</td>
+                    <td>{{entry.user__userresponse__user_location}}</td>
+                    <td>{{entry.course__title}}: v{{entry.course__version|floatformat:2}}</td>
+                    <td> {{entry.location_users}}</td>  
+                    <td>{{entry.course_taken_by_users}}</td>
+                <td {% if entry.course_taken_percentage < 80 %} style="color:red;" {% endif %}><b>{{entry.course_taken_percentage|floatformat:2}}%</b></td>
+                    <td {% if entry.average_score < 80 %} style="color:red;"{% endif %}><b>{{entry.average_score|floatformat:2}}%</b></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="container my-3">
+        <h4>User Course Completion Summary</h4>
+        <table class="table table-sm table-hover table-borderless" id="toExcel">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>User Name</th>
+                    <th>Country</th>
+                    <th>Location</th>
+                    <th>Course Name</th>
+                    <th>Year</th>
+                    <th>Quarter</th>
+                    <th>Month</th>
+                    <th>Status</th>
+                    <th>Completion Date</th>
+                    <th>Score</th>
+
+                </tr>
+            </thead>
+
+            <tbody id="geeks">
+                {% for data in combined_data %}
+                {% for course, course_data in data.courses.items %}
+                {% if not course_data.is_completed %}
+                <tr>
+                    {% if forloop %} 
+                    <td>{{data.user.userid}}</td>
+                    <td>{{data.user.user_name}}</td>
+                    <td>{{data.user.user_country}}</td>
+                    <td>{{data.user.user_location}}</td>
+                    
+                    {% endif %} 
+                    
+                    <td>{{course.title}}: v{{course.version|floatformat:2}}</td>
+                    {% if course_data %}
+                    <td>{{course_data.year}}</td>
+                    <td>Q{{course_data.quarter}}</td>
+                    <td> {% if course_data.month == none %} - {% else %} {{course_data.month|get_month_name}} {% endif %}</td>
+                    {% if course_data.is_completed %}<td style="color:green; font-weight: bold;">Completed</td>{% else %}<td style="color:red; font-weight: bold;">Pending</td>{% endif %}
+                    <td>{% if course_data.is_completed %}{{course_data.completion_date}} {% else %} - {% endif %}</td>
+                    <td> <b>{{course_data.percentage|floatformat:2}}%</b></td>
+                    {% else %}
+                    <td>{{current_year}}</td>
+                    <td>Q{{current_quarter}}</td>
+                    <td>{{course_data.current_month}}</td>
+                    {% if course_data.is_completed %}<td style="color:green; font-weight: bold;">Completed</td>{% else %} <td style="color:red; font-weight: bold;">Pending</td>{% endif %}
+                    <td>{% if course_data.is_completed %}{{course_data.completion_date}} {% else %} - {% endif %}</td>
+                    <td style="color:red;"> {% if course_data.is_completed %}{{course_data.percentage|floatformat:2}}% {% else %}Not Taken{% endif %}</td>
+                    {% endif %}
+
+                </tr>
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="container" style="text-align: center;">
+        <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock  %}

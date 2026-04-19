@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Duplicate Entry{% endblock %}
+
+  {% block body %}
+  
+<div class="container-fluid my-3" style="text-align: center;">
+  <div class="alert alert-warning align-items-center my-3" role="alert">
+    <img src="/static/img/duplicate-list.png" alt="Alert" height="36"> 
+     <h3 class="warning">Uploaded With Exclusion!!!</h3>
+     <h5>Following records were excluded from upload as these are either duplicate entries in excel file or this data already present in database:</h5>
+  </div>
+        
+  <table class="table table-hover table-borderless table-sm" style="vertical-align: middle;" id="toExcel">
+    <thead>
+      <tr>
+        {% comment %} <th scope="col">Record ID</th> {% endcomment %}
+        <th scope="col">Month</th>
+        <th scope="col">Disposal Date</th>
+        <th scope="col">Country</th>
+        <th scope="col">Location</th>
+        <th scope="col">Function</th>
+        <th scope="col">Description</th>
+        <th scope="col">Waste Category</th>
+        <th scope="col">Severity</th>
+        <th scope="col">Unit</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Disposed By</th>
+        <th scope="col">Verified By</th>
+        <th scope="col">Remarks</th>
+      </tr>
+    </thead>
+
+    <tbody id="geeks">
+      {% for data in e_waste_dataset %}
+      <tr>
+        {% comment %} <th scope="row">{{data.id}}</th> {% endcomment %}
+        <td scope="row">{{data.Month|get_month_name}}-{{data.Year}}</td>
+        <td scope="row">{{data.Disposal_Date}}</td>
+        <td scope="row">{{data.Country}}</td>
+        <td scope="row">{{data.Location}}</td>
+        <td scope="row">{{data.Function}}</td>
+        <td scope="row">{{data.Description}}</td>
+        <td scope="row">{{data.Category}}</td>
+        <td scope="row">{{data.Severity}}</td>
+        <td scope="row">{{data.Unit}}</td>
+        <td scope="row">{{data.Quantity}}</td>
+        <td scope="row">{{data.Disposed_By}}</td>
+        <td scope="row">{{data.Verified_By}}</td>
+        <td scope="row">{{data.Remarks}}</td>
+      </tr> 
+      {% endfor %}
+    </tbody>
+</table>
+
+  <div class="container" style="text-align:center;">
+    <button class="button btn-primary my-2" onclick="exceller()">Download To Excel</button>
+  </div>
+  <div class="container my-5">
+   <p>Go Back To E-Waste Disposal Data Input Page.</p>
+    <a class="btn btn-sm btn-warning" href="{% url 'WM_EWaste_Input'%}" role="button">Go Back</a>
+  </div>
+</div>
+
+  {% endblock  %}

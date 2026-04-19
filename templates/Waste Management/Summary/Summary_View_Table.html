@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% load tz %}
+{% block title %}Waste Disposal Summary{% endblock%}
+{% block body %}
+
+<div class="container-fluid my-2" style="text-align:center;">
+  <form class='form-group row my-3' method="get" action="/Disp_Summary_Data">
+    <div class="container row">
+        <div class="col">
+            <label for="year">Year:</label>
+            <select id="year" name="year">
+                <option value="All">All</option>
+                {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col">
+          <label for="quarter">Quarter:</label>
+          <select id="quarter" name="quarter">
+              <option value="All">All</option>
+              {% for quarter in quarters %}
+              <option value="{{ quarter }}">Q{{quarter}}</option>
+              {% endfor %}
+          </select>
+      </div>
+    
+        <div class="col">
+            <label for="month">Month:</label>
+            <select id="month" name="month">
+                <option value="All">All</option>
+                {% for month in months %}
+                <option value="{{ month }}">{{month|get_month_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col">
+          <label for="country">Country:</label>
+          <select id="country" name="country">
+              <option value="All">All</option>
+              {% for country in countries %}
+              <option value="{{ country }}">{{ country }}</option>
+              {% endfor %}
+          </select>
+      </div>
+
+        <div class="col">
+            <label for="location">Location:</label>
+            <select id="location" name="location">
+                <option value="All">All</option>
+                {% for location in locations %}
+                <option value="{{ location }}">{{ location }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col">
+            <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+        </div>
+    </div>
+  </form>
+  
+  {% if error_message %}
+  <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+      <img src="/static/img/info.png" alt="info" height="22">
+      <div class="container">
+          {{ error_message }}
+      </div>
+  </div>
+  {% else %}
+
+  <div class="container-fluid my-2"> 
+    <h5>Disposal Summary</h5>
+    <table class="table table-hover table-borderless table-sm" style="vertical-align: middle;" id="toExcel">
+        <thead>
+          <tr>
+            <th>Record ID</th>
+            <th>Year</th>
+            <th >Month</th>
+            <th>Disposal Date</th>
+            <th>Location</th>
+            <th>Disposal Type</th>
+            <th>Total Items</th>
+            <th>Entered By</th>
+            <th>Verified By</th>
+            <th>Upload/ View Evidences</th>
+
+          </tr>
+        </thead>
+
+        <tbody id="geeks">
+          {% for data in summary_dataset %}
+          <tr>
+            <th>DISP/{{data.UID}}</th>
+            <td>{{data.Year}}</td>
+            <td>{{data.Month|get_month_name}}</td>
+            <td>{{data.Date}}</td>
+            <td>{{data.Location}}</td>
+            <td>{{data.Type}}</td>
+            <td>{{data.Items}}</td>
+            <td>{{data.Entered_By__first_name}} {{data.Entered_By__last_name}} ({{data.Entered_By__username}})</td>
+            <td>{% if data.Verified %} {{data.Verified_By__first_name}} {{data.Verified_By__last_name}} ({{data.Verified_By__username}}) {% else %} {% if request.user|user_in_group:"Admin-Leaders" and  data.Evidence1.url != '' %} {% if data.Evidence1 == "" %}- {% else %}<a href="{% url 'Disp_Details' data.UID %}" style="text-decoration: none; font-weight: bold;color: green;">Verify{% endif %}</a> {% else %}<b style="color: red;"> Pending</b>{% endif %}{% endif %}</td>
+            {% if data.Evidence1 != "" %}
+            <td><a class="btn btn-sm" href="{% url 'Disp_Details' data.UID %}" style="text-decoration: none; "><b>View Details</b></a></td>
+            {% else %}
+            <td scope="row"><a type="button" class="btn btn-sm" href="{% url 'Upload_Evidences' data.UID %}">Upload Evidences
+               <img src="/static/img/upload.png" alt="Upload" height="12"></a></td>
+               {% endif %}
+          </tr> 
+          {% endfor %}
+        </tbody>
+    </table>
+
+      {% comment %} <div class="container">
+        <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+      </div> {% endcomment %}
+  </div> 
+  
+  <!-- Downloadable Excel -->
+  {% comment %} <div id="no-display">
+    <table id="toExcel">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Activity Date</th>
+          <th>Country</th>
+          <th>Location</th>
+          <th>Function</th>
+          <th>Description</th>
+          <th>Activity Type</th>
+          <th>Entered By</th>
+          <th>Verified</th>
+          <th>Verified By</th>
+        </tr>
+      </thead>
+
+      <tbody id="geeks">
+        {% for data in e_waste_dataset %}
+        <tr>
+          <td>{{data.Month|get_month_name}}-{{data.Year}}</td>
+          <td>{{data.Date|excel_date_format}}</td>
+          <td>{{data.Country}}</td>
+          <td>{{data.Location}}</td>
+          <td>{{data.Function}}</td>
+          <td>{{data.Description}}</td>
+          <td>{{data.Type}}</td>
+          <td>{{data.Quantity}}</td>
+          <td>{{data.Entered_By.first_name}} {{data.Entered_By.last_name}}</td>
+          <td>{{data.Verified_By.first_name}}  {{data.Verified_By.last_name}}</td>
+        </tr> 
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>  {% endcomment %}
+      {% endif %}
+
+   
+
+<script>
+  function loadFilters() {
+    const filters = ['year', 'quarter', 'month', 'location', 'country'];
+    filters.forEach(filter => {
+      const savedValue = localStorage.getItem(filter);
+      if (savedValue) {
+        document.getElementById(filter).value = savedValue;
+      }
+    });
+  }
+  const filterElements = document.querySelectorAll('select');
+  filterElements.forEach(filterElement => {
+    filterElement.addEventListener('change', function(){
+      localStorage.setItem(this.id, this.value);
+    });
+  });
+  window.addEventListener('DOMContentLoaded', loadFilters)
+</script>
+{% endblock %}

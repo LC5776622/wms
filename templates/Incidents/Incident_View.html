@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+{%load custom_filters%}
+{% block title %} View Incident Details{% endblock %}
+{% block body %}
+
+<script src="{% static 'scripts/html2pdf.min.js' %}"></script>
+<!-- <script src="{% static 'scripts/jsPDF.2.5.1.js' %}"></script> -->
+<style>
+  p, b{
+    margin-left: 5px;
+  }
+
+  #pdfElements>table>tbody>tr>td{
+    background-color:white;
+    text-align: left;
+  }
+
+  #pdfElements>table>tbody>tr>th{
+    background-color: #D0EDCE;
+    text-align: left;
+  }
+
+  #pdfElements>table>tbody>tr>th, #pdfElements>table,  #pdfElements>table>thead>tr>th, #pdfElements>table>tbody>tr>td{
+    border: solid 0.1rem black;
+
+  }
+
+</style>
+
+
+<div class="container-fluid" style=" font-size: medium; margin-left:3px;" >
+  <div class="container-fluid shadow my-3" style="text-align: center; padding-top:5px; padding-bottom: 5px; background-color:#F9F5F1;">
+    <h4>View Incident Details</h4>
+  </div>
+
+  <table class="container-fluid table table-sm table-borderless">
+    <thead>
+      <tr>
+        <th>Incident ID</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Country</th>
+        <th>Location</th>
+        <th>Sub-Location</th>
+        <th>Incident Category</th>
+        <th>Equip. Category</th>
+        <th>Severity</th>
+        <th>Status</th>
+        <th>Closure Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>{% if incident_data.id < 10 %}000{{incident_data.id}} {% elif incident_data.id > 9 %}00{{incident_data.id}} {% elif incident_data.id > 99 %}0{{incident_data.id}} {% elif incident_data.id >= 999 %}0{{incident_data.id}} {% else %}{{incident_data.id}}{% endif %}</b></td>
+        <td>{{incident_data.Report_Date}}</td>
+        <td>{{incident_data.Report_Time}}</td>
+        <td>{{incident_data.Report_Country}}</td>
+        <td>{{incident_data.Report_Location}}</td>
+        <td>{{incident_data.Report_Sub_Loc}}</td>
+        <td>{{incident_data.Inci_Category}}</td>
+        <td>{{incident_data.Equip_Category}}</td>
+        {% if incident_data.Severity == "High" %}
+        <td style="background-color:red; color:white;">{{incident_data.Severity}}</td>
+        {% elif incident_data.Severity == "Medium" %}
+        <td style="background-color:yellow;">{{incident_data.Severity}}</td>
+        {% else %}
+        <td style="background-color:green; color:white;">{{incident_data.Severity}}</td>
+        {% endif %}
+        <td>{{incident_data.Status}}</td>
+        <td>{{incident_data.Closure_Date}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="container-fluid shadow" style="border: 1px solid lightgray; padding: 5px;">
+    <div class="col-12" style="border: solid 1px lightgray; background-color: #D0EDCE;">
+      <b>Nature Of Incident:</b>
+      <p>{{incident_data.Inci_Nature}}</p>
+    </div>
+    <div class="col-12" style="border: solid 1px lightgray; background-color: #E9F6E8;">
+      <b>Brief About Incident:</b>
+      <p >{{incident_data.Incident_Brief}}</p>
+    </div>
+    <div class="col-12" style="border: 1px solid lightgray; background-color: #D0EDCE;">
+      <b>Corrective Action Taken:</b>
+      <p>{{incident_data.Corrective_Act}}</p>
+    </div>
+    <div class="col-12" style="border: solid 1px lightgray; background-color: #E9F6E8;">
+      <b>Root Cause Analysis:</b>
+      <p >{{incident_data.Root_Cause}}</p>
+    </div>
+    <div class="col-12" style="border: 1px solid lightgray; background-color: #D0EDCE;">
+      <b>Long Term Corrective Action:</b>
+      <p >{{incident_data.Preventive_Act}}</p>
+    </div>
+    <div class="col-12" style="border: solid 1px lightgray; background-color: #E9F6E8;">
+      <b>Remarks:</b>
+      <p>{{incident_data.Remarks}}</p>
+    </div>
+  </div>
+
+
+  <!--  -->
+  <div class="container col-md-6 my-3" style="display:none;"> 
+    <div class="my-3" id="pdfElements">
+      <table class="table table-borderless my-3">
+        <thead>
+          <tr><td colspan="6" style="padding: 0px; background-color: #FD8D62; color: black; padding-bottom: 0; margin-bottom: 0; font-size: 1.4rem; font-weight: bold;" >Facility Incident Report</td></tr>
+        </thead>
+      </table>
+      <table class="table table-borderless my-1">
+        <thead>
+          <tr><td colspan="6" style="background-color: #015B7E; padding: 0px; padding-left: 10px; font-size: 1.1rem; font-weight: 625; text-align: left;">Preliminary Incident Report</td></tr>
+        </thead>
+      </table>
+      <table class="table table-borderless my-1">
+        <tbody>
+          <tr>
+            <th>Location:</th><td >{{incident_data.Report_Location}}</td>
+            <th>Incident Start Date & Time:</th> <td >{{incident_data.Report_Date}} {{incident_data.Report_Time}}</td>
+            <th>Incident End Date & Time:</th> <td >{{incident_data.Closure_Date}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table table-borderless my-1"> 
+        <tbody>
+          <tr>
+          <th>Week:</th><td  >{{incident_data.Report_Date|get_week_from_date}}</td>
+          <th>Severity: <br> <small>(Low/Medium/High)</small></th><td >{{incident_data.Severity}}</td>
+          <th>Impact on the Operations ?:<br><small>if Yes, Please Give Detail</small></th><td> {% if incident_data.Impact %} Yes {% else %} No {% endif %}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table table-borderless my-1"> 
+        <thead>
+          <tr>
+            <th style="font-size: .7rem;" colspan="3">Incident Description</th>
+            <th style="font-size: .7rem;" colspan="2">Impact / Damage Description</th>
+            <th style="font-size: .7rem;">Incident Reported By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="3">{{incident_data.Incident_Brief}}</td>
+            <td colspan="2" >{{incident_data.Impact_Desc}}</td>
+            <td>{{incident_data.Reported_By}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table table-borderless my-1"> 
+        <tbody>
+          <tr><th >Interim Containment Action(s):</th><td >{{incident_data.Corrective_Act}}</td></tr>
+          <tr><th >Current Status:</th><td >{{incident_data.Status}}</td></tr>
+        </tbody>
+      </table>
+    <br><br>
+      <table class="table table-borderless my-1"> 
+        <thead>
+          <tr>
+            <td style="background-color: #015B7E; padding: 0px; padding-left: 10px; font-size: 1.1rem; font-weight: bold; text-align: left;" colspan="6">Report Post Root Cause Analysis</td>
+          </tr>
+        </thead>
+      </table>
+
+      <table class="table table-borderless my-1"> 
+        <tbody>
+          <tr>
+            <th>Root Cause  Analysis of Incident <br>
+            <small>(Detail Description of the Problem):</small></th><td >{{incident_data.Root_Cause}}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table table-borderless my-1"> 
+        <tbody>
+
+          <tr >
+            <th>Long Term Corrective Action: <br>
+            <small>(Basis of RCA)</small></th><td>{{incident_data.Preventive_Act}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table table-borderless my-1"> 
+        <tbody>
+          <tr>
+            <th>Implementation Date & Time:</th><td>{{incident_data.Act_Implement_Date|date:'M, d Y'}}</td> 
+            <th >Status:<br><small>(Open/ Closed)</small></th><td >{{incident_data.Status}}</td>
+          </tr>
+       </tbody>
+      </table>
+
+      <table class="table table-borderless my-1"> 
+        <tbody>
+          <tr>
+            <th >FTE/TPE/Vendor Responsible to Implement the Long Term Corrective Action:</th><td>{{incident_data.Prev_Act_Resp}}</td>
+          <th >Current Status Post Implementation:</th><td>{{incident_data.Status}}</td>
+          </tr>
+        </tbody>
+      </table>
+        <br>
+      <table class="table table-borderless my-3"> 
+        <tbody>
+          <tr>
+            <td colspan="6" style="text-align: left; border: #F9F5F1;"><b style="color: black;">Note: <i style="color: blue; font-size: small;">Basis of above incident, the future risk will be captured and update in Risk Register ( applicable location) and update the preventive action plan.</i></b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  
+  </div>
+  
+  <div class="container my-3" style="text-align: center;">
+    <button class="btn btn-sm btn-success" type="button" onclick="pdfDownload()">Download PDF</button>
+  </div>
+
+  <div class="container my-3" style="text-align: center;">
+    <a href="{% url 'IncidentData' %}" class="btn btn-sm btn-warning">Go Back</a>
+  </div>
+
+</div>
+    
+
+
+<script>
+  function pdfDownload(){
+    var pdfElements = document.getElementById("pdfElements")
+    html2pdf(pdfElements, {
+    margin: 5,
+    filename: 'Incident_Report.pdf',
+    image : {type:'jpeg', quality: .95},
+    html2canvas : {scale:2, logging:true, dpi: 192, letterRendering: false},
+    jsPDF : {unit:'mm', format :'a4'}
+  });
+  };
+</script>
+
+
+{% endblock %}
+

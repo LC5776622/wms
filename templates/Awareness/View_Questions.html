@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}View Questions{% endblock %}
+{% block body %}
+
+<div class="container-flex" style="text-align:center;">
+    <div class="container">
+        <form class='form-group row my-3' method="get" action="/view_questions">
+          <div class="col-md-6 row">
+            <div class="col-md-9">
+              <label for="course">Course Name:</label>
+              <select id="course" name="course">
+                  <option hidden selected value="All">All</option>
+                  {% for course in courses %}
+                  <option value="{{ course }}">{{ course }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+             <div class="col-md-3">
+                <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+            </div>
+          </div>
+        </form>
+    </div>
+      
+      {% if error_message %}
+      <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+          <img src="/static/img/info.png" alt="info" height="22">
+          <div class="container">
+              {{ error_message }}
+          </div>
+      </div>
+      {% else %}
+
+    <div class="container-fluid my-3">
+        <h4>View Questions List</h4>
+        <table class="table table-sm table-hover table-borderless">
+            <thead>
+                <th>Course Name</th>
+                <th>Question</th>
+                <th>Option 1</th>
+                <th>Option 2</th>
+                <th>Option 3</th>
+                <th>Option 4</th>
+                {% comment %} <th>Correct Option</th> {% endcomment %}
+                {% if request.user|user_in_group:"Site-Admin"%}
+                <th>Action</th>   
+                {% endif %}           
+            </thead>
+            <tbody id="geeks">
+                {% for question in questions %}
+                <tr>
+                    <td>{{question.course_name}}</td>
+                    <td>{{question.question_text}}</td>
+                    <td>{{question.option1}}</td>
+                    <td>{{question.option2}}</td>
+                    <td>{{question.option3}}</td>
+                    <td>{{question.option4}}</td>
+                    {% comment %} <td>{{question.correct_option}}</td> {% endcomment %}
+                    {% if request.user|user_in_group:"Site-Admin"%}
+                    <td scope="row"><a type="button" class="btn btn-sm" href="{% url 'Edit_Questions' question.id %}">
+                      <img src="/static/img/edit.png" alt="Edit" height="15"> </a></td>
+                {% endif %}
+
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+    <!-- Downloadable Table -->
+    <div id="no-display">
+      <table id="toExcel">
+          <thead>
+              <th>Course Name</th>
+              <th>Question</th>
+              <th>Option 1</th>
+              <th>Option 2</th>
+              <th>Option 3</th>
+              <th>Option 4</th>         
+          </thead>
+          <tbody id="geeks">
+              {% for question in questions %}
+              <tr>
+                  <td>{{question.course_name}}</td>
+                  <td>{{question.question_text}}</td>
+                  <td>{{question.option1}}</td>
+                  <td>{{question.option2}}</td>
+                  <td>{{question.option3}}</td>
+                  <td>{{question.option4}}</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+    <div class="container">
+        <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+      </div>
+    {% endif %}
+</div>
+
+{% endblock %}

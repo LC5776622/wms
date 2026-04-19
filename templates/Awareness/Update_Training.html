@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Update Training Records{% endblock %}
+{% block body %}
+<div class="container col-9 shadow my-3" style="border: solid 1px lightgrey; padding: 10px;">
+    <h4>Update Training Record</h4>
+    <div class="container-flex">
+        <table class="table table-sm table-borderless">
+            <thead>
+                <tr>
+                    <th>Country</th>
+                    <th>Location</th>
+                    <th>Subject</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{training_data.country}}</td>
+                    <td>{{training_data.location}}</td>
+                    {% for course in courses %}
+                    <td>{{course.course__title}}</td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+
+            <thead>
+                <tr>
+                    <th>Session Type</th>
+                    <th>Training Frequency</th>
+                    <th>Planned Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <td>{{training_data.session}}</td>
+                <td>{{training_data.frequency}}</td>
+                <td>{{training_data.planned_date}}</td>
+            </tbody>
+        </table>
+
+    </div>
+
+    <form class="row g-3" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="col-md-3">
+            <label class="form-label" for="Agenda">Session Agenda:</label>
+            <textarea class="form-control" name="agenda" id="Agenda" cols="60" rows="4" placeholder="You can add multiple lines separated by a semicolon (;)" required></textarea>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="AttendeeTeams">Attendee Teams:</label>
+            <textarea class="form-control" name="attendee_teams" id="AttendeeTeams" cols="60" rows="4" required></textarea>
+        </div>
+
+        <div class="col-md-5">
+            <label class="form-label" for="Attendees">Attendees' Names:</label>
+            <textarea class="form-control" name="attendees" id="Attendees" cols="60" rows="4"  required></textarea>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="ActualDate">Actual Date:</label>
+            <input class="form-control" type="date" name="actual_date" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="ConductedBy">Conducted By:</label>
+            <input class="form-control" type="text" name="conducted_by" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="AttendenceSheet">Attendence Sheet:</label>
+            <input class="form-control" type="file" name="attendence_sheet" required>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="TrainingImages">Training Images:</label>
+            <input class="form-control" type="file" name="training_images" required>
+        </div>
+
+        <div class="col-md-6">
+            <input class="btn btn-sm btn-outline-dark" type="submit" value="Update">
+        </div>
+        <div class="col-md-6" style="text-align: right;">
+            <a class="btn btn-sm btn-warning" href="{% url 'Calendar_View' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+
+
+
+{% endblock  %}

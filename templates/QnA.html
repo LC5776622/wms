@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Q & A{% endblock %}
+
+{% block body %}
+
+<div class="container my-5">
+    <form class="form-group" action="/QnA" method="GET">
+        <div class="container my-3">
+            <label for="Q">Question:</label>
+            <input class="form-control" type="text" id="Q" name="Q" placeholder="Type Your Question Here.....">
+        </div>
+        <div class="container my-3">
+            <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+        </div>
+    </form>
+
+    {{mbr_data}}
+</div>
+
+{% endblock %}

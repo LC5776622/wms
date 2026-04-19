@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load custom_filters%}
+{% block title %}Vendor Input {% endblock  %}
+{% block body %}
+<style>
+  tr>th{
+    vertical-align: middle;
+    text-align:left;
+  }
+
+</style>
+
+<div class="container col-md-5 my-3 shadow" style="text-align: center; padding:3px; background-color:#F9F5F1;">
+  <h4>Update Vendor Details </h4>
+</div>
+
+<div class="container col-md-5 shadow" style="padding:10px;">
+  <form method="POST" action="{% url 'update_vendor_data' vendor_data_id=vendor_data.id %}">
+    {% csrf_token %}
+    <table class="table table-sm table-hover">
+      <tbody class="form-group">
+        <tr>
+          <th><label for="country">Country:</label></th>
+          <td>
+            <select class="form-select" name="country" id="Country">
+              {% if request.user|user_in_group:"Admin-Leaders" %}
+              <option hidden selected value="{{vendor_data.country}}">{{vendor_data.country}}</option>
+              {% for country in countries %}
+              <option  value="{{country}}">{{country}}</option>
+              {% endfor %}
+              {% else %}
+              <option  value="{{user_country}}">{{user_country}}</option>
+              {% endif %}
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <th><label for="location">Location:</label></th>
+          <td><select class="form-select" name="location" id="Location">
+            {% if request.user|user_in_group:"Admin-Leaders" %}
+            <option hidden selected value="{{vendor_data.location}}">{{vendor_data.location}}</option>
+            {% else %}
+            <option value="{{user_location}}">{{user_location}}</option>
+            {% endif %}
+          </select></td>
+        </tr>
+        <tr>
+          <th><label for="category">Category:</label></th>
+          <td>
+            <select class="form-select" name="category" id="category">
+              <option hidden selected value="{{vendor_data.category}}">{{vendor_data.category}}</option>
+              <option value="AMC">AMC</option>
+              <option value="Cafeteria">Cafeteria</option>
+              <option value="C & B">C & B</option>
+              <option value="Contract Headcount">Contract Headcount</option>
+              <option value="Contract Services">Contract Services</option>
+              <option value="Employment">Employment</option>
+              <option value="Insurance">Insurance</option>
+              <option value="Legal">Legal</option>
+              <option value="Misc. Occupancy Costs">Misc. Occupancy Costs</option>
+              <option value="Permanent Headcount">Permanent Headcount</option>
+              <option value="Rent">Rent</option>   
+              <option value="Repair & Maint.">Repair & Maintenance</option>          
+              <option value="Supplies">Supplies</option>
+              <option value="Telecom">Telecom</option>
+              <option value="Training">Training</option>
+              <option value="Transport">Transport</option>
+              <option value="Travel">Travel</option>
+              <option value="Utilities">Utilities</option> 
+              <option value="Others">Others</option>             
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <th><label for="vendorDesc">Vendor Description:</label></th>
+          <td><input class="form-control" type="text" name="vendorDesc" id="vendorDesc" value="{{vendor_data.vendor_desc}}"></td>
+        </tr>
+        <tr>
+          <th><label for="vendor">Vendor Name:</label></th>
+          <td><input class="form-control" type="text" name="vendor" id="vendor" value="{{vendor_data.vendor}}" ></td>
+        </tr>
+        <tr>
+          <th><label for="address">Vendor Business Address:</label></th>
+          <td><textarea class="form-control" name="address" id="address" value="{{vendor_data.business_address}}">{{vendor_data.business_address}}</textarea></td>
+        </tr>
+        <tr>
+          <th><label for="email">Vendor Business Email:</label></th>
+          <td><input class="form-control" type="email" name="email" id="email" value="{{vendor_data.business_email}}"></td>
+        </tr>
+        <tr>
+          <th><label for="contactPerson">Contact Person:</label></th>
+          <td><input class="form-control" type="text" name="contactPerson" id="contactPerson" value="{{vendor_data.contact_person}}"></td>
+        </tr>
+        <tr>
+          <th><label for="contactNo">Contact No.:</label></th>
+          <td><input class="form-control" type="text" name="contactNo" id="contactNo" value="{{vendor_data.contact_no}}"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="container row">
+      <div class="col-md-6" style="text-align:left;">
+        <input class="btn btn-sm btn-outline-primary" type="submit" value="Update">
+      </div>
+      <div class="col-md-6" style="text-align:right;">
+        <a class="btn btn-sm btn-warning" href="{% url 'VendorView' %}">Cancel</a>
+      </div>
+    </div>
+  </form>
+</div>  
+
+
+{% endblock %}

@@ -1,0 +1,195 @@
+{% load custom_filters %}
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title> {% block title %} {% endblock title %} | Facility Reports</title>
+  <link rel="stylesheet" href="{% static 'css/5.1.3/bootstrap.min.css'%}">
+  <script src="{% static 'scripts/main/jquery-3.6.0.min.js' %}"></script>
+  </head>
+    <body style="background-color: #F9F5F1;">
+      <!-- <header style="font-size: xx-large;"><img src="{% static 'img/FISLogo.png' %}" alt="FIS Logo" height="50"> |FRP</header> -->
+    <nav class="container-fluid navbar navbar-expand-lg navbar-dark" style="background-color: #012834; position: relative; background:img;">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/">
+            <img src="{% static 'img/FISLogo.png' %}" alt="FIS Logo" height="40">
+          </a>
+          {% if user.is_authenticated %}
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              {% if request.user|user_in_group:"Read_Write"%}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Data Input
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                 <!-- <li><a class="dropdown-item" href="{% url 'MBRInput'%}">MBR Data Input</a></li>-->
+                  <li><a class="dropdown-item" href="{% url 'IncidentInput'%}">Incident Tracker Input</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% if request.user|user_in_group:"Admin-Managers"%}
+                  <li><a class="dropdown-item" href="{% url 'OPEX_Upload'%}">OPEX Tracker Input</a></li>
+                  
+                  {% endif %}
+                  <li><a class="dropdown-item" href="{% url 'WM_Routine_Input' %}">Waste Disposal Input</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'Invoice_Input'%}">Invoice Tracker Input</a></li>
+                  <li><a class="dropdown-item" href="{% url 'Vendor_Input'%}">Vendor Details Input</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'CustomReport_Input' %}">Upload Custom Reports</a></li>
+                </ul>
+              </li>
+                {% endif %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  View Data
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <!--<li><a class="dropdown-item" href="{% url 'SpaceData'%}">View MBR Data</a></li>-->
+                  <li><a class="dropdown-item" href="{% url 'IncidentData'%}">View Incident Data</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'OpexView' %}">View OPEX Data</a></li>
+                  <li><a class="dropdown-item" href="{% url 'Routine_View' %}">View Waste Disposal Data</a></li>
+                  <li><a class="dropdown-item" href="{% url 'Disp_Summary_Data' %}">Disposal Summary</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'InvoiceView' %}">View Invoice Data</a></li>
+                  
+                  <li><a class="dropdown-item" href="{% url 'VendorView'%}">View Vendor Data</a></li>
+                  {% if request.user|user_in_group:"Site-Admin"%}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'ReportsData'%}">View Reports Data</a></li>
+                  {% endif %}
+                </ul>
+              </li>
+
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Reports
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <!-- <li><a class="dropdown-item" href="{% url 'MBR_Report'%}">MBR Report</a></li>-->
+                  <li><a class="dropdown-item" href="{% url 'Incident_Report'%}">Incident Report</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{%url 'OPEX_Report'%}">OPEX Report</a></li>
+                  <li><a class="dropdown-item" href="{%url 'WM_Report'%}">Waste Disposal Report</a></li>
+                  {% if request.user|user_in_group:"Admin-Leaders"%}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'Awareness_Sumamry'%}">Awareness Reports</a></li>
+                  {% endif %}
+                  <li><a class="dropdown-item" href="{% url 'CustomReport_View'%}">Power BI Reports</a></li>
+
+                </ul>
+              </li>
+              {% endif %}
+
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Awareness
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  {% if request.user|user_in_group:"Admin-Managers"%}
+                  <li><a class="dropdown-item" href="{% url 'Schedule_Training' %}">Training Planner</a></li>
+                  <li><a class="dropdown-item" href="{% url 'Calendar_View' %}">Training Calendar</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  {% endif %}
+                  <li><a class="dropdown-item" href="{% url 'View_Courses' %}">Assigned Courses</a></li>
+                  <li><a class="dropdown-item" href="{% url 'User_Responses' %}">View Quiz Responses</a></li>
+                  <li><a class="dropdown-item" href="{% url 'Acknowledgement_View' %}">View Acknowledgements</a></li>
+                  {% if request.user|user_in_group:"Site-Admin"%}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'Add_Questions' %}">Add Questions</a></li>
+                  <li><a class="dropdown-item" href="{% url 'View_Questions' %}">View Questions</a></li>
+                  <li><a class="dropdown-item" href="{% url 'Upload_Course' %}">Upload Course PDF</a></li>
+                  {% endif %}
+
+
+                </ul>
+              </li>
+              
+              {% if user.is_authenticated %}
+             
+              {% if request.user|user_in_group:"Admin-Leaders"%} 
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Admin
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                  <li><a class="dropdown-item" href="{% url 'Location_Input'%}">Locations Input</a></li>
+                  <li><a class="dropdown-item" href="{% url 'Location_View'%}">View Location Data</a></li> 
+                  <li><hr class="dropdown-divider"></li>
+                  {% if request.user|user_in_group:"Site-Admin"%}  
+                  <li><a class="dropdown-item" href="{% url 'AuthUser_Upload'%}">Authorized User Upload</a></li>
+                  <li><a class="dropdown-item" href="{% url 'AuthUser_View'%}">Authorized User List</a></li>
+                  <li><hr class="dropdown-divider"></li>  
+                  {% endif %}
+                  <li><a class="dropdown-item" href="{% url 'Register' %}">Add New User</a></li> 
+                  <li><a class="dropdown-item" href="{% url 'Registered_Users' %}">Registered Users List</a></li>
+
+<!--                  {% if request.user|user_in_group:"Site-Admin"%}-->
+<!--                  <li class="nav-item"><a class="dropdown-item" href="/admin/">Admin Console</a></li>-->
+<!--                  {% endif %}                -->
+                </ul>
+              </li>
+              {% endif %} 
+             <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url 'Logout' %}">Logout</a>
+            </li>
+            </ul>
+            <ul class="navbar-nav me-right mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{% url 'UserProfile' %}">{{request.user.first_name}} {{request.user.last_name}}</a>
+              </li>   
+            </ul>
+
+            <form class="d-flex">
+              <input class="form-control me-2" type="search" id="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-sm btn-outline-light">Search</button>
+              {% endif %}
+            </form>
+          </div>
+        </div>
+    </nav>
+
+    {% block body %} {% endblock body %}
+
+    <link rel="stylesheet" href="{% static 'css/customized_css.min.css'%}">
+    <script src="{% static 'scripts/5.1.3/bootstrap.bundle.min.js'%}"></script>
+    <script src="{% static 'scripts/toExcel.js' %}"></script>
+    <script src="{% static 'scripts/search.js'%}"></script>
+       
+  <script>
+      $(document).ready(function() {
+
+      const countryDropdown = document.getElementById("Country");
+      const locationDropdown = document.getElementById("Location");
+
+      const locationsByCountry = JSON.parse('{{locations|safe }}');
+
+      function updateLocationDropdown() {
+        const selectedCountry = countryDropdown.value;
+        locationDropdown.innerHTML = '<option hidden selected value="">--Select Location--</option>';
+        if (selectedCountry) {
+          locationsByCountry[selectedCountry].forEach(location => {
+            const option = document.createElement("option");
+            option.text = location;
+            option.value = location;
+            locationDropdown.add(option);
+          });
+        }
+      }
+      countryDropdown.addEventListener("change", updateLocationDropdown);
+      });
+  </script>
+  <br><br>
+    <div id="footer" class="container" style="text-align: center;">
+        <footer id="footer">&copy; FIS Global Business Solutions India Pvt. Ltd. (2023-24)</footer>
+    </div>
+    
+  </body>
+
+</html>

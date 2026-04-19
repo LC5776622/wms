@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load custom_filters%}
+{% block title %}Vendor Input {% endblock  %}
+{% block body %}
+
+<style>
+tr>th{vertical-align: middle;text-align:left;}
+</style>
+
+<div class="container col-md-5 my-3 shadow" style="text-align: center; padding:3px; background-color:#F9F5F1;">
+  <h4>Enter Vendor Details </h4>
+</div>
+
+<div class="container col-md-5 shadow" style="padding:10px;">
+  <form method="POST" action="/vendorinput">
+    {% csrf_token %}
+    <table class="table table-sm table-hover">
+      <tbody class="form-group">
+        <tr>
+          <th><label for="country">Country:</label></th>
+          <td>
+              <select class="form-select" name="country" id="Country">
+                {% if request.user|user_in_group:"Admin-Leaders" %}
+                <option hidden selected value="">--Select Country--</option>
+                {% for country in countries %}
+                <option  value="{{country}}">{{country}}</option>
+                {% endfor %}
+                {% else %}
+                <option  value="{{user_country}}">{{user_country}}</option>
+                {% endif %}
+              </select>
+          </td>
+        </tr>
+        <tr>
+          <th><label for="location">Location:</label></th>
+          <td><select class="form-select" name="location" id="Location">
+            {% if request.user|user_in_group:"Admin-Leaders" %}
+            <option hidden selected value="">--Select Location--</option>
+            {% else %}
+            <option value="{{user_location}}">{{user_location}}</option>
+            {% endif %}
+          </select></td>
+        </tr>
+        
+        <tr>
+          <th><label for="category">Category:</label></th>
+          <td>
+            <select class="form-select" name="category" id="category">
+              <option hidden selected value="">--Select Category--</option>
+              <option value="AMC">AMC</option>
+              <option value="Cafeteria">Cafeteria</option>
+              <option value="C & B">C & B</option>
+              <option value="Contract Headcount">Contract Headcount</option>
+              <option value="Contract Services">Contract Services</option>
+              <option value="Employment">Employment</option>
+              <option value="Insurance">Insurance</option>
+              <option value="Legal">Legal</option>
+              <option value="Misc. Occupancy Costs">Misc. Occupancy Costs</option>
+              <option value="Permanent Headcount">Permanent Headcount</option>
+              <option value="Rent">Rent</option>   
+              <option value="Repair & Maint.">Repair & Maintenance</option>          
+              <option value="Supplies">Supplies</option>
+              <option value="Telecom">Telecom</option>
+              <option value="Training">Training</option>
+              <option value="Transport">Transport</option>
+              <option value="Travel">Travel</option>
+              <option value="Utilities">Utilities</option> 
+              <option value="Others">Others</option>             
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <th><label for="vendorDesc">Vendor Description:</label></th>
+          <td><input class="form-control" type="text" name="vendorDesc" id="vendorDesc" placeholder="Stationary, Food , AMC, TuckShop, Tea-Coffee etc."></td>
+        </tr>
+        <tr>
+          <th><label for="vendor">Vendor Name:</label></th>
+          <td><input class="form-control" type="text" name="vendor" id="vendor" placeholder="Full Legal Name Of Vendor. i.e. ABC Pvt. Ltd."></td>
+        </tr>
+        <tr>
+          <th><label for="address">Vendor Business Address:</label></th>
+          <td><textarea class="form-control" name="address" id="address"></textarea></td>
+        </tr>
+        <tr>
+          <th><label for="email">Vendor Business Email:</label></th>
+          <td><input class="form-control" type="email" name="email" id="email" placeholder="example@vendoremail.com"></td>
+        </tr>
+        <tr>
+          <th><label for="contactPerson">Contact Person:</label></th>
+          <td><input class="form-control" type="text" name="contactPerson" id="contactPerson" placeholder="Point of contact for the vendor"></td>
+        </tr>
+        <tr>
+          <th><label for="contactNo">Contact No.:</label></th>
+          <td><input class="form-control" type="text" name="contactNo" id="contactNo"></td>
+        </tr>
+      </tbody>
+    </table>
+      <div class="col-12 my-2" style="text-align: center;">
+        <input type="submit" class="btn btn-sm btn-outline-dark">
+      </div>
+    </form>
+    {% if success_message %}
+    <div class=" flex alert alert-success" role="alert" style="text-align:center;">
+        {{success_message}}
+    </div>
+    {% endif %}
+</div>   
+
+{% if request.user|user_in_group:"Site-Admin"%}
+{% include "Vendors/Vendor_Upload.html" %}
+{% endif %}
+{% endblock %}

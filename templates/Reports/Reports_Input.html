@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}EnPI Score Input{% endblock%}
+{% block body %}
+
+<script>
+    window.onload = function() {
+    const countryDropdown = document.getElementById("Country");
+    const locationDropdown = document.getElementById("Location");
+
+    const locationsByCountry = {
+        All: ["All Countries", "APAC"],
+      India: ["Bangalore", "Chennai", "Gurgaon", "Indore", "Hyderabad", "Mohali", "Mumbai", "Pune", "PAN India"],
+      Philippines: ["Manila", "Cebu City", "Makati City", "PAN Philippines"],
+    };
+
+    function updateLocationDropdown() {
+      const selectedCountry = countryDropdown.value;
+      locationDropdown.innerHTML = '<option hidden selected value="">Location</option>';
+      if (selectedCountry) {
+        locationsByCountry[selectedCountry].forEach(location => {
+          const option = document.createElement("option");
+          option.text = location;
+          option.value = location;
+          locationDropdown.add(option);
+        });
+      }
+    }
+    countryDropdown.addEventListener("change", updateLocationDropdown);
+  };
+</script>
+
+
+<div class="container col-md-6 my-3 shadow" style="padding: 10px; font-size:small;">
+  <h5>Upload Your Report Here</h5>
+  <br>
+  <form class="row g-3" method="POST" action="/customreportsinput">
+    {% csrf_token %}
+
+    <div class="col-md-6">
+        <label for="Country" class="form-label"><b>Country:</b></label>
+        <select id="Country" name="Country" class="form-select" required>
+          <option hidden selected value="">Country</option>
+          <option value="All">All</option>
+          <option value="India">India</option>
+          <option value="Philippines">Philippines</option>
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label for="Location" class="form-label"><b>Location:</b></label>
+        <select id="Location" name="Location" class="form-select" required>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label for="ReportName" class="form-label"><b>Name Your Report: </b></label>
+        <input type="text" class="form-control" name="ReportName" id="ReportName" required>
+    </div>
+
+    <div class="col-md-9">
+        <label for="ReportURL" class="form-label"><b>Report URL:</b></label>
+        <input type="text" class="form-control" name="ReportURL" id="ReportURL" required>
+    </div>
+     
+    <div class="col-12" style="padding: 10px; text-align: center;">
+        <input type="submit" class="btn btn-sm btn-outline-dark">
+    </div>
+  </form>
+  {% if success_message %}
+  <div class="alert alert-success" role="alert" style="text-align:center;">
+      {{success_message}}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+

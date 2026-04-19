@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}Course Details{% endblock %}
+{% block body %}
+<style>
+    a{
+        text-decoration: none;
+        color: rgb(65, 63, 63);
+    }
+</style>
+<div class="container-flex my-3 g-3" style="text-align: center;">
+    {% if request.user|user_in_group:"Admin-Leaders"%} 
+    <div class="btn-group">
+        <a href="{% url 'View_Courses' %}" class="btn btn-sm btn-outline-dark active" >Assigned Courses</a>
+        <a href="{% url 'Archived_Courses' %}" class="btn btn-sm btn-outline-dark">Archived Course</a>
+    </div>
+    {% endif %}
+    {% if error_message %}
+
+    <div class="container col-10">
+        <div class="container col-md-6 alert alert-primary d-flex my-3" role="alert">
+            <img src="/static/img/info.png" alt="info" height="22">
+            <div class="container">
+                {{ error_message }}
+            </div>
+        </div>
+        {% else %}
+
+        {% if request.user|user_in_group:"Admin-Leaders"%}
+        <div class="container my-3">
+            {% else %}
+        <div class="container my-3 col-md-9">
+                {% endif %}
+                <h4>View Assigned Courses</h4>
+                <table class="table table-sm table-hover table-borderless my-3">
+                    <thead>
+                        <tr>
+                            <th>Course ID</th>
+                            <th>Course Name</th>
+                            <th>Document Version</th>
+                            <th>Created On</th>
+                            <th>Course Status</th>
+                            {% if request.user|user_in_group:'Admin-Leaders' %}
+                            <th>Version Approver</th>
+                            <th>Approved On</th>
+                            <th colspan=2>Action</th>
+                            {% endif %}
+                        </tr>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td>{{course.id}}</td>
+                            <td><a href="{% url 'Version_Control' course.id %}"> {{course.title}}</a></td>
+                            <td>{{course.version|floatformat:2}}</td>
+                            <td> {% if course.updated_at == none %}{{course.uploaded_at}} {% else %}{{course.updated_at}}{% endif %}</td>
+                            {% if course.id in completed_courses %}
+                            <td style="background-color: rgb(8, 243, 8);">Completed</td>
+                            {% else %}
+                            <td style="background-color: rgb(255, 71, 71); color: white;">Pending</td>
+                            {% endif %}
+                            {% if request.user|user_in_group:'Admin-Leaders' %}
+                            <td> {% if course.approved_by == None and request.user|user_in_group:"Admin-Leaders" %} <a href="{% url 'Approve_Course' course.id %}"><b style="color: blue;">Approve</b></a> {% elif course.approved_by == None %} - {% else %} {{course.approved_by.last_name}}, {{course.approved_by.first_name}} ({{course.approved_by}}) {% endif %}</td>
+                            <td> {% if course.is_approved %}{{course.approved_at}} {% else %} - {% endif %}</td>
+                            
+                            <td scope="row"><a type="button" class="btn btn-sm" href="{% url 'Update_Course' course.id %}">
+                            <img src="/static/img/edit.png" alt="Edit" height="12"> </a>
+                            </td>
+                            {% endif %}
+                            {% if request.user|user_in_group:'Site-Admin' %}
+                            <td>
+                                <form action="{% url 'Delete_Course' course.id  %}" method="POST" id="delete-form">
+                                {% csrf_token %}
+                                    <button id="delete-btn" onclick="return confirm('Are you sure you want to delete this item? Please note that deleted record cannot be restored.');" type="submit" class="btn btn-sm">
+                                    <img src="/static/img/delete.png" alt="Delete" height="12"></button>
+                                </form>
+                            </td>
+                            
+                            {% endif %}
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

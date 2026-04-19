@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Duplicate Entry{% endblock %}
+{% block body %}
+<div class="container col-md-6 my-3" style="text-align: center;">
+  <div class="alert alert-danger" role="alert">
+      <img src="/static/img/duplicate.png" alt="Warning" height="40"> 
+      <h3>Duplicate Entry Warning!!!</h3>
+      <hr>
+        {% for data in vendordataset %}
+        <p>Vendor <b>{{data.vendor}}</b> from <b>{{data.location}}</b> location under <b>{{data.category}}</b> category with <b>{{data.vendor_desc}}</b> description already has been added to the database.</p>
+        <p>Please go to <a href="{% url 'VendorView' %}"><b>View Vendor Data</b></a> section under <b>View Data</b> tab to View & Edit existing details.</p>
+        {% endfor %}
+  </div>
+  <br>
+  <div class="col">
+    <p>Go Back To Vendor Data Input Page</p>
+    <a class="btn btn-sm btn-warning" href="{% url 'Vendor_Input'%}" role="button">Go Back</a>
+  </div>
+</div>
+
+      {% endblock %}

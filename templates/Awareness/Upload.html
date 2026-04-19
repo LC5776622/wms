@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Upload Presentation{% endblock %}
+{% block body %}
+
+<div class="container col-md-6 my-3 shadow" style=" border:solid 1px lightgrey; padding: 10px;">
+    <div class="container" style="background-color: green; color: white; border: solid 1px lightgray; padding: 5px;">
+        <h4>Awareness/ Training Courses Upload Page</h4>
+    </div>
+    <div class="container my-3">
+        <h5>Upload Training/ Awareness Course Presentation</h5>
+        <form class="row g-3 my-3" action="/UplaodCourse" method="POST" enctype="multipart/form-data" >
+            {% csrf_token %}
+                <div class="col-md-9">
+                    <label class="form-label" for="title">Presentation Title:</label>
+                    <input class="form-control" type="text" name="title" id="title" required placeholder="Give your presentation an easy and corresponding name.">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="version">Document Version:</label>
+                    <input class="form-control" type="number" name="version" id="version" step="0.01" required placeholder="i.e. 1.10, 1.11 etc.">
+                </div>
+                <div class="col-12">
+                    <label for="pdf_file">Upload File:</label>
+                    <input style="color: red;" class="form-control" type="file" required name="pdf_file" id="pdf_file">
+                </div>
+            <div class="col-12" style="text-align: center;">
+                <button class="btn btn-outline-dark btn-sm" type="submit">Upload</button>
+            </div>
+        </form>
+        {% if success_message %}
+        <div class="container my-3 flex alert alert-success" role="alert" style="text-align:center;">
+            {{success_message}}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock  %}

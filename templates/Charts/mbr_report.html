@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %} MBR Report{% endblock %}
+{% block body %}
+<script src="{% static 'scripts/2.9.4/Chart.min.js' %}"></script>
+<script src="{% static 'scripts/html2pdf.min.js' %}"></script>
+<script src="{% static 'chartjs-datalabels.js' %}"></script>
+
+<div class="container-flex my-3" style="text-align:center;" >
+    <form class='form-group container-flex col-12 row' method="get" action="/mbrreport">
+      <div class=" container row">
+        <div class="col-md-2">
+          <label for="year">Year:</label>
+          <select id="year" name="year">
+            <option value="All">--All--</option>
+            {% for year in years %}
+            <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="quarter">Quarters:</label>
+          <select id="quarter" name="quarter">
+            <option value="All">--All--</option>
+            {% for quarter in quarters %}
+            {{ quarter }} 
+            <option value="{{ quarter }}">{{quarter}}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label for="month">Month:</label>
+          <select id="month" name="month">
+            <option value="All">--All--</option>
+            {% for month in months %}
+            {{ month }} 
+            <option value="{{ month }}">{{month|convert_date_format}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="location">Location:</label>
+          <select id="location" name="location">
+            <option value="All">--All--</option>
+            {% for location in locations %}
+            <option value="{{ location }}">{{ location }}</option>
+            {% endfor %}
+          </select>
+        </div> 
+        <div class="col-md-1">
+            <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+        </div>
+      </div>
+    </form>
+
+    {% if error_message %}
+    <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+      <img src="/static/img/info.png" alt="info" height="22">
+      <div class="container">
+        {{ error_message }}
+      </div>
+    </div>
+    {% else %}
+    
+  <div class="container my-3" id="pdfElements">
+    <div class="container">
+      <h1 style="background-color: #015B7E; color: white; padding-bottom: 10px;">Space & Headcount Dashboard</h1>        
+      <div class="container-flex">
+        <h4>Space Distribution Across Locations</h4>
+        <canvas id="spaceChart" height="80%"></canvas>
+      </div>
+      
+      <div class="col row">
+        <h4>Space & Headcount Overview</h4>
+        <table class=" table table-borderless table-sm table-hover " style="vertical-align: middle;">
+          <thead>
+            <tr>
+              <th style="padding-left:3px; padding-right:3px;"> Month </th>                      
+              <th>Location</th>
+              <th>Space (SQFT)</th>
+              <th>Total Seats</th>
+              <th>Area/ Seat</th>
+              <th>Head-Count</th>
+              <th>Occupied Seats</th>
+              <th>Vacant Seats</th>
+              <th>Seat Utilization</th>
+            </tr>
+          </thead>
+          <tbody id="geeks">
+            {% for data in mbr_dataset %}
+            <tr>
+              <td>{{data.ReportMonth}}</td>
+              <td>{{data.ReportLocation}}</td>
+              <td>{{data.AreaSQFT}}</td>
+              <td>{{data.TotalSeats}}</td>
+              <td>{{data.Area_Per_Seat}}</td>
+              <td>{{data.Headcount}}</td>
+              <td>{{data.OccupiedSeats}}</td>
+              <td>{{data.Vacant_Seats}}</td>
+              <td>{{data.Utilization}}</td>
+            </tr> 
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="html2pdf__page-break"></div>
+      <div>
+        <h4>Seats vs Headcount Ratio Across Locations</h4>
+        <canvas id="SeatsHC" height="100%"></canvas>
+      </div>
+    </div>
+    <div class="html2pdf__page-break"></div>
+
+    <div class="row my-3"> 
+      <h1 style="background-color: #015B7E; color: white; padding-bottom: 10px;">Assets Movement Dashboard</h1>
+      <div class="col-md-6">
+        <h4>Assets Movement Ratio by Assets Type</h4>
+          <canvas id="doughnutChart"></canvas>
+      </div>
+      <div class="col">
+        <h5>Total Assets Movement by Location</h5>
+        <table class="table table-borderless table-sm table-hover">
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>Laptop</th>
+                <th>Desktop</th>
+                <th>Dongle</th>
+                <th>Accessories</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>  
+                {% for data in table_data %}                    
+                <tr>
+                    <td> {{data.ReportLocation}}</td>
+                    <td> {{data.Laptop}}</td>
+                    <td> {{data.Desktop}}</td>
+                    <td> {{data.Dongle}}</td>
+                    <td> {{data.Accessories}}</td>
+                    <th> {{data.Total}}</th>
+                </tr> 
+                {% endfor %}         
+            </tbody>
+        </table>
+      </div>
+      {% comment %} <div class="html2pdf__page-break"></div> {% endcomment %}
+      <div class="container-flex">
+          <h5>Assets Movement Count by Locations</h5>
+          <canvas id="assetsChart" height="80%"></canvas>
+      </div>
+    </div>  
+    <div class="html2pdf__page-break"></div>
+    <div class="row my-3">
+      <h1 style="background-color: #015B7E; color: white; padding-bottom: 10px;">Facility Updates</h1>
+      <!--       
+      {% for update in update_data %}
+      <div class="col-md-3" style="padding-top:15px; padding-bottom:5px;"> 
+        <h5>{{update.ReportLocation}} ({{update.ReportMonth|convert_date_format}})</h5>
+        <div class="accordion" id="accordionPanelsStayOpenExample">
+          {% if update.Work_Completed != '' or update.Work_In_Progress == '' and update.Work_In_Progress != '' %}
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+              <button class="accordion-button" style="background-color: #015B7E; color: white;" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+              <b>Completed Projects/Tasks</b>
+              </button>
+            </h2>
+            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+              <div class="accordion-body" id="text" style="font-size: larger; text-align:left; font-weight: 600;">
+                {% for sentence in update.Work_Completed|split_sentences %}
+                {{ sentence }}{% if not forloop.last %}.<br>{% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          {% if update.Work_In_Progress != '' or update.Work_Completed == '' and update.Work_In_Progress != '' %}
+          <div class="accordion-item my-3">
+            <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+              <button class="accordion-button collapsed" style="background-color:#A18CDE; color:white" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                <b>Work In Progress</b>
+              </button>
+            </h2>
+            <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingTwo">
+              <div class="accordion-body" id="text" style="font-size: larger; text-align:left; font-weight: 600;">
+                {% for sentence in update.Work_In_Progress|split_sentences %}
+                {{ sentence }}{% if not forloop.last %}.<br>{% endif %}
+                {% endfor %}
+              </div>                        
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %} -->
+
+      {% for update in update_data %}
+      {% if update.Work_Completed != '' or update.Work_In_Progress != ''%}
+      <div class="col-md-3 my-2">   
+        <div class="container-flex" style="padding:5px; border: solid 1px grey; background-color: rgb(229, 250, 215); border-radius: 5px;">
+          <h5 class="shadow" style="border: 2px solid; background-color: #43dd06; padding: 3px; color: white;">{{update.ReportLocation}} ({{update.ReportMonth|convert_date_format}})</h5>
+            {% if update.Work_Completed != '' %}
+              <div class="container-flex shadow" style="border: solid 1px lightgrey; padding: 3px; background-color: white;">
+                <div style="background-color: #015B7E; padding-top: 6px; vertical-align: middle; padding-bottom: 3px; color: white;" class="container-flex">
+                  <h6>Completed Projects/ Tasks</h6>
+                </div>
+                <div class="container-flex" id="text" style="font-size: .9rem; text-align:left;">
+                  {% for sentence in update.Work_Completed|split_sentences %}
+                  {{ sentence }}{% if not forloop.last %}<br>{% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              {% if update.Work_In_Progress != ''%}
+              <div class="container-flex my-2 shadow" style="border: solid lightgrey 1px; padding: 3px; background-color: white; ">
+                <div class="container-flex" style="background-color: #A18CDE; padding-top: 6px; vertical-align: middle; padding-bottom: 3px; color: white;">
+                  <h6>Work In Progress</h6>
+                </div>
+                <div class="container-flex" id="text" style="font-size: .9rem; text-align:left;">
+                  {% for sentence in update.Work_In_Progress|split_sentences %}
+                  {{ sentence }}{% if not forloop.last %}<br>{% endif %}
+                  {% endfor %}
+                </div>                        
+              </div>
+              {% endif %}
+          </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  <div class="container justify-content-center" style="text-align: center;">
+    <button class="btn btn-sm btn-success" type="button" onclick="pdfDownload()">Download PDF</button>
+  </div>
+</div>
+
+<br>
+{% endif %} 
+
+<script>
+    window.onload = function() 
+    {
+    const chartData = JSON.parse('{{d_chart_data|safe }}');
+    const dataset = {
+        labels: chartData.labels,
+        data: chartData.data,
+        backgroundColor: chartData.backgroundColor
+    };
+    const ctx = document.getElementById('doughnutChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: chartData.labels,
+            datasets: [dataset],
+        },
+        options: {
+            cutoutPercentage: 40,
+            tooltips: {
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        const dataset = data.datasets[tooltipItem.datasetIndex];
+                        const value = dataset.data[tooltipItem.index];
+                        const label = dataset.labels[tooltipItem.index];
+                        return label + ': ' + value + '%';
+                    },
+                },
+            },
+        },
+    });
+    };
+</script>
+
+<script type="text/javascript">
+    
+    var spaceChart = JSON.parse('{{ space_chart|escapejs }}');
+
+    var spaceCtx = document.getElementById('spaceChart').getContext('2d');
+    var spaceChart = new Chart(spaceCtx, spaceChart);
+</script>
+
+
+<script type="text/javascript">
+    
+    var SeatsHC = JSON.parse('{{ seats_hc_chart|escapejs }}');
+
+    var SeatshcCtx = document.getElementById('SeatsHC').getContext('2d');
+    var SeatsHC = new Chart(SeatshcCtx, SeatsHC);
+</script>
+
+<script type="text/javascript">
+    
+    var Assets = JSON.parse('{{ asset_chart|escapejs }}');
+
+    var AssetsCtx = document.getElementById('assetsChart').getContext('2d');
+    var Assets = new Chart(AssetsCtx, Assets);
+</script>
+
+<script>
+  function pdfDownload(){
+    var pdfElements = document.getElementById("pdfElements")
+    html2pdf(pdfElements, {
+    margin: 5,
+    filename: 'MBR_Report.pdf',
+    image : {type:'jpeg', quality: 1},
+    html2canvas : {scale:2, logging:true, dpi: 192, letterRendering: true},
+    jsPDF : {unit:'mm', format :'legal', orientation: 'landscape'}
+  });
+  };
+</script>
+  
+<script>
+  function loadFilters() {
+    const filters = ['year', 'quarter', 'month', 'location', 'country'];
+    filters.forEach(filter => {
+      const savedValue = localStorage.getItem(filter);
+      if (savedValue) {
+        document.getElementById(filter).value = savedValue;
+      }
+    });
+  }
+  const filterElements = document.querySelectorAll('select');
+  filterElements.forEach(filterElement => {
+    filterElement.addEventListener('change', function(){
+      localStorage.setItem(this.id, this.value);
+    });
+  });
+  window.addEventListener('DOMContentLoaded', loadFilters)
+</script>
+{% endblock %}
+

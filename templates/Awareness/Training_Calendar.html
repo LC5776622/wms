@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Training Calendar{% endblock  %}
+{% block body %}
+
+<div class="container-flex my-3">
+
+    <form class='form-group row my-3' method="get">
+        <div class="col-md-2">
+          <label for="year">Year:</label>
+          <select id="year" name="year">
+              <option value="All">All</option>
+              {% for year in years %}
+              <option value="{{ year }}">{{ year }}</option>
+              {% endfor %}
+          </select>
+        </div>
+    
+        <div class="col-md-2">
+            <label for="quarter">Quarter:</label>
+            <select id="quarter" name="quarter">
+                <option value="All">All</option>
+                {% for quarter in quarters %}
+                <option value="{{ quarter }}">Q{{quarter}}</option>
+                {% endfor %}
+            </select>
+        </div> 
+        
+        <div class="col-md-2">
+          <label for="month">Month:</label>
+          <select id="month" name="month">
+              <option value="All">All</option>
+              {% for month in months %}
+              <option value="{{ month }}">{{ month|get_month_name }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        {% if request.user|user_in_group:"Admin-Leaders"%}
+        <div class="col-md-2">
+            <label for="location">Location:</label>
+            <select id="location" name="location">
+                <option value="All">All</option>
+                {% for location in locations %}
+                <option value="{{ location }}">{{ location }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <div class="col">
+            <label for="course">Training:</label>
+            <select id="course" name="course">
+                <option value="All">All</option>
+                {% for course in courses %}
+                <option value="{{ course }}">{{course }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="col-md-1">
+            <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+        </div>
+    
+    </form>
+    
+    
+    {% if error_message %}
+    <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+        <img src="/static/img/info.png" alt="info" height="22">
+        <div class="container">
+            {{ error_message }}
+        </div>
+    </div>
+    {% else %}
+
+    <h4>Training Calendar</h4>
+    <div class="container-fluid">
+        <table class="table table-sm table-hover table-borderless">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Month</th>
+                    <th>Location</th>
+                    <th>Training Name</th>
+                    <th>Session Type</th>
+                    <th>Frequency</th>
+                    <th>Planned Date</th>
+                    <th>Actual Date</th>
+                    <th>Conducted By</th>
+                    <th>Verified By</th>
+                    <th>Verified On</th>
+                    <th>Details</th>
+                    
+                </tr>
+            </thead>
+            <tbody id="geeks">
+                {% for data in training_dataset %}
+                <tr>
+                    <td>{{data.planned_date|date:'Y'}}</td>
+                    <td>{{data.planned_date|date:'M'}}</td>
+                    <td>{{data.location}}</td>
+                    <td>{{data.course__title}}</td>
+                    <td>{{data.session}}</td>
+                    <td>{{data.frequency}}</td>
+                    <td>{% if data.actual_date == none %} <a href="{% url 'Update_Training' data.id %}" style="text-decoration: none; color: blue;">{% endif %}{{data.planned_date}}</a></td>
+                    <td>{% if data.actual_date == none %} - {% else %}{{data.actual_date}} {% endif %}</td>
+                    <td>{% if data.actual_date == none %} - {% else %}{{data.conducted_by}}{% endif %}</td>
+
+                    <td><b>{% if data.verified_by == none and data.actual_date != none and request.user|user_in_group:"Admin-Leaders"%}<a href="{% url 'Verify_Training' data.id %}" style="text-decoration: none; color: green;">Verify</a></b>{% elif data.verified_by == none %} - {% else %} {{data.verified_by__username}} {% endif %}</td>
+
+
+                    <td>{% if data.verified_date == none %} - {% else %}{{data.verified_date}}{% endif %}</td>
+                    <td><a href="{% url 'View_Training_Record' data.id %}" style="text-decoration: none; color: brown;">View Details</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Downloadable Table -->
+    <div id="no-display">
+        <table id="toExcel">
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Month</th>
+                    <th>Location</th>
+                    <th>Training Name</th>
+                    <th>Session Type</th>
+                    <th>Frequncy</th>
+                    <th>Planned Date</th>
+                    <th>Actual Date</th>
+                    <th>Conducted By</th>
+                    <th>Verified By</th>
+                    <th>Verified On</th>
+                    
+                </tr>
+            </thead>
+            <tbody id="geeks">
+                {% for data in training_dataset %}
+                <tr>
+                    <td>{{data.planned_date|date:'Y'}}</td>
+                    <td>{{data.planned_date|date:'b-Y'}}</td>
+                    <td>{{data.location}}</td>
+                    <td>{{data.course__title}}</td>
+                    <td>{{data.session}}</td>
+                    <td>{{data.frequency}}</td>
+                    <td>{{data.planned_date|date:'d-b-Y'}}</a></td>
+                    <td>{% if data.actual_date == none %} - {% else %}{{data.actual_date|date:'d-b-Y'}} {% endif %}</td>
+                    <td>{% if data.actual_date == none %} - {% else %}{{data.conducted_by}}{% endif %}</td>
+                    <td> {% if data.verified_by == none %} - {% else %}{{data.verified_by__username}}{% endif %}</td>
+                    <td>{% if data.actual_date == none %} - {% else %}{{data.verified_date|date:'d-b-Y'}}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container"style="text-align:center;">
+        <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

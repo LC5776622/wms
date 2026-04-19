@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}Course Details{% endblock %}
+{% block body %}
+<style>
+    a{
+        text-decoration: none;
+        color: rgb(65, 63, 63);
+    }
+</style>
+<div class="container-fluid my-3 g-3" style="text-align: center;">
+    <div class="container" >
+        <div class="btn-group">
+            <a href="{% url 'View_Courses' %}" class="btn btn-sm btn-outline-dark" >Assigned Courses</a>
+            <a href="{% url 'Archived_Courses' %}" class="btn btn-sm btn-outline-dark active">Archived Course</a>
+        </div>
+        
+        <div class="container">
+            {% if error_message %}
+            <div class="container col-md-6 alert alert-primary d-flex my-3" role="alert">
+                <img src="/static/img/info.png" alt="info" height="24">
+                <div class="container">
+                    {{ error_message }}
+                </div>
+            </div>
+            {% else %}
+            <form class="row" method="GET" action="/archived_courses" style="text-align: left;">
+                <div class="col-md-3">
+                    <select name="course" id="course">
+                        <option value="All">All</option>
+                        {% for course in course_list %}
+                        <option value="{{course}}">{{course}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+                </div>
+            </form>
+        </div>
+
+        <div class="container">
+            <h4>View Archived Courses</h4>
+            <table class="table table-sm table-hover table-borderless my-3" id="toExcel">
+                    <thead>
+                        <tr>
+                            <th>Course ID</th>
+                            <th>Course Name</th>
+                            <th>Document Version</th>
+                            <th>Created On</th>
+                            {% if request.user|user_in_group:'Admin-Leaders' %}
+                            <th>Version Approver</th>
+                            <th>Approved On</th>
+                            <th>Archived On</th>
+                            {% endif %}
+                        </tr>
+                    </tr>
+                    </thead>
+                    <tbody id="geeks">
+                        {% for course in courses %}
+                        <tr>
+                            <td>{{course.id}}</td>
+                            <td><a href="{% url 'Version_Control' course.id %}"> {{course.title}}</a></td>
+                            <td>{{course.version|floatformat:2}}</td>
+                            <td> {% if course.updated_at == none %}{{course.uploaded_at}} {% else %}{{course.updated_at}}{% endif %}</td>
+                            <td>{% if course.approved_by == None %} - {% else %} {{course.approved_by.last_name}}, {{course.approved_by.first_name}} ({{course.approved_by}}) {% endif %}</td>
+                            <td> {% if course.is_approved %}{{course.approved_at}} {% else %} - {% endif %}</td>
+                            <td> {{course.archived_at}}</td>
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="container"style="text-align:center;">
+            <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

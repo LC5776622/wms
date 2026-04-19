@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile{% endblock %}
+{% block body %}
+<style>
+     p, h3, h4, h5{
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 10px;
+        /* border: 1px solid #ddd; */
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #change-password, .profile{
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"]{
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    button[type="submit"]{
+        background-color: #4CAF50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .success{
+        color: green;
+        margin-bottom: 20px;
+    }
+</style>
+
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <b><ul {% if message.tags %} class="{{message.tag}}"{% endif %}>{{message}}</ul></b>
+    {% endfor %}
+</ul>
+{% if form.errors %}
+<div class="alert alert-danger" role="alert">
+    <strong>Oops! Something went wrong.</strong>
+    {% for field, errors in form.errors.items %}
+        <br>{{field}}:
+        {% for error in errors %}
+            {{error}}
+        {% endfor %}
+    {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+
+<div class="container" id="profile">
+    <h3 style="text-align:center;">Welcome {{first_name}} {{last_name}}</h3>
+    <h5>Profile Information:</h5>
+    <p> <strong>User ID:</strong> {{username}}</p>
+    <p> <strong>First Name:</strong> {{first_name}}</p>
+    <p> <strong>Last Name:</strong> {{last_name}}</p>
+    <p> <strong>Email:</strong> {{email}}</p>
+    <p> <strong>Designation:</strong> {{designation}}</p>
+    <br>
+    <h5>Change Password:</h5>
+    <form id="change-password" method="POST">
+        {% csrf_token %}
+        {{form.as_p }}
+        <br>
+        <button type="submit"> Save Changes</button>
+        {% if success %}
+        <div class="container">
+        <p class="success">{{success}}</p> 
+        </div>
+        {% endif %}
+    </form>
+
+</div>
+{% endblock  %}

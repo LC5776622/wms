@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Add Question{% endblock  %}
+{% block body %}
+<div class="col-md-6 row my-3">
+    <h4>Add Questions & Options</h4>
+<form  method="POST" >
+    {% csrf_token %}
+
+    <div class="container my-1">
+        <label class="form-label" for="courseSelect">Course Name:</label>
+        <select class="form-select-md" name="course" id="courseSelect">
+            {% for course in courses %}
+            <option value="{{course.id}}">{{course.title}} {{course.version|floatformat:2}}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="container my-1">
+        <label class="form-label-sm" for="question_text">Question:</label>
+        <input class="form-control" type="text" name="question_text" id="question_text" required>
+    </div>
+
+    <div class="container my-1">
+        <label class="form-label-sm" for="option1">Option 1:</label>
+        <input class="form-control" type="text" name="option1" id="option1" required>
+    </div>
+
+    <div class="container my-1">
+        <label class="form-label-sm" for="option2">Option 2:</label>
+        <input class="form-control"  type="text" name="option2" id="option2" required>
+    </div>
+
+    <div class="container my-1">
+        <label class="form-label-sm" for="option3">Option 3:</label>
+        <input class="form-control" type="text" name="option3" id="option3">
+    </div>
+
+    <div class="container my-1">
+        <label class="form-label-sm" for="option4">Option 4:</label>
+        <input class="form-control" type="text" name="option4" id="option4">
+    </div>
+
+    <div class="container my-1">
+        <label class="form-label-sm" for="correct_option">Correct Option:</label>
+        <input class="form-control" type="text" name="correct_option" id="correct_option" required>
+    </div>
+
+    <div class="container my-3" style="text-align: center;">
+        <button class="btn btn-sm btn-outline-dark" type="submit">Save</button>
+    </div>
+</form>
+</div>
+{% endblock  %}

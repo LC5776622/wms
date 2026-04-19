@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}User Added{% endblock%}
+
+{% block body %}
+
+<div class="container col-md-4 my-5" style="text-align: center; font-size: medium;">
+    <div class="col">
+      <h2 style="color: rgb(2, 71, 2);">Success!</h2>
+        <div class="alert alert-success" role="alert">
+          <img src="/static/img/Success.png" alt="Success" height="22">
+            <div>
+              User Account Created Successfully.
+            </div>
+        </div>
+        
+        <br><br>      
+        <a href="{% url 'Login' %}">Go To Login Page Now.</a>
+        <br><br><hr>
+        <div class="alert alert-danger my-5" role="alert">
+          <img src="/static/img/duplicate.png" alt="NoRefresh" height="22">
+            Please Do Not Reload Or Refresh This Page!!!
+        </div>
+      </div>
+</div>
+
+
+{% endblock body %}

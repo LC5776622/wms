@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+
+<div class="container col-md-6 my-3" style="text-align: center;">
+    <div class="alert alert-danger shadow" role="alert">
+      <img src="/static/img/duplicate.png" alt="Warning" height="40">
+      <h3>Duplicate Entry Warning!!!</h3>
+      <hr>
+      {% for data in duplicateRoutine %}
+      <p>Routine Waste Disposal Data already been entered for <b>{{data.Location}}</b> location as disposed on <b>{{data.Disposal_Date}}</b> with description <b>{{data.Description}}</b>.</p>
+      <p>Please go to <a href="{% url 'Routine_View' %}"><b>View Waste Disposal Data</b></a> section under <b>'View Data'</b> tab to View & Edit existing data.</p>
+      {% endfor %}
+    </div>
+    <br> 
+    <div class="col">
+      <p>Go Back To Routine Waste Disposal Data Input Page.</p>
+      <a class="btn btn-warning" href="{% url 'WM_Routine_Input'%}" role="button">Go Back</a>
+    </div>
+</div>
+{% endblock %}

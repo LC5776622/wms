@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Schedule Training{% endblock %}
+{% block body %}
+<div class="container col-md-6 shadow my-3" style="border: solid 1px lightgrey; padding: 10px;">
+    <h4>Schedule Your Training Here</h4>
+    <form class="row g-3" method="POST" action="/schedule_training">
+        {% csrf_token %}
+        <div class="col-md-4">
+            <label class="form-label" for="Country">Country:</label>
+            <select class="form-select" name="country" id="Country">
+                <option hidden selected value="">--Country--</option>
+                {% for country in countries %}
+                <option value="{{country}}">{{country}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="Location">Location:</label>
+            <select class="form-select" name="location" id="Location">
+                <option hidden selected value="">--Location--</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="Course">Subject:</label>
+            <select class="form-select" name="course" id="Course">
+                <option hidden selected value="">--Subject--</option>
+                {% for course in courses %}
+                <option value="{{course.id}}">{{course.title}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <div class="col-md-4">
+            <label class="form-label" for="Session">Session Type:</label>
+            <select class="form-select" name="session" id="Session">
+                <option hidden selected value="">--Type--</option>
+                <option value="Awareness">Awareness</option>
+                <option value="Training">Training</option>
+                <option value="Consultation and Participation">Consultation & Participation</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="Frequency">Training Frequency:</label>
+            <select class="form-select" name="frequency" id="Frequency">
+                <option hidden selected value="">--Frequency--</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Bi-Monthly">Bi-Monthly</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="Half-Yearly">Half-Yearly</option>
+                <option value="Yearly">Yearly</option>
+
+            </select>
+        </div>
+        
+        <div class="col-md-4">
+            <label class="form-label" for="Training_Date">Planned Date:</label>
+            <input class="form-control" type="date" id="Training_Date" name="training_date">
+
+        </div>
+        <div class="container" style="text-align: center;">
+            <input class="btn btn-sm btn-outline-primary" type="submit" value="Submit">
+        </div>
+
+    </form>
+</div>
+
+
+
+{% endblock  %}

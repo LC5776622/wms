@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block title %}ESG Data Update{% endblock  %}
+
+{% block body %}
+<style>
+    #Upload>a{
+    color:green;
+    font-weight: bold;
+    text-align: right;
+    padding-left: 25px;
+}
+</style>
+<div class="container my-3">
+    <h4 class="shadow" style="padding: 5px; background-color: rgb(233, 89, 6); color: aliceblue;">Update ESG Details</h4>
+    <div class="container shadow" style="text-align: center; background-color: rgb(247, 196, 167); padding: 5px; border: solid white 1px; ">
+        <b style="color: red;">Alert:</b> You are now updating <b>ESG Data Record ID:</b> <b style="color:red;">ESG/{{esg_data.id}}</b>. Kindly review & validate all details before submitting.
+    </div>
+    <div class="container shadow" style="padding: 10px; border: solid 1px lightgrey;">
+        <form class="form-group row g-1" action="{% url 'Update_ESG' esg_id=esg_data.id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="col-md-1">
+                <label for="recordID" class="form-label">Record ID</label>
+                <h5 style="background-color: bisque;" class="form-control"><b>ESG/{{esg_data.id}}</b></h5>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="disposalMonth">Month:</label>
+                <input class="form-control" name="disposalMonth" id="disposalMonth" type="month" value="{{esg_data.Month}}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="Country">Country:</label>
+                <select class="form-select" name="Country" id="Country">
+                    <option hidden selected value="{{esg_data.Country}}">{{esg_data.Country}}</option>
+                    <option value="India">India</option>
+                    <option value="Philippines">Philippines</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="Location">Location:</label>
+                <select class="form-select" name="Location" id="Location">
+                    <option hidden selected value="{{esg_data.Location}}">{{esg_data.Location}}</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="Function">Function:</label>
+                <select class="form-select" name="Function" id="Function">
+                    <option hidden selected value="{{e_waste_data.Function}}">{{esg_data.Function}}</option>
+                    <option value="Facilities">Facilities</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Physical Security">Physical Security</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label" for="itemDesc">Item Description:</label>
+                <input class="form-control" name="itemDesc" id="itemDesc" type="text" value="{{esg_data.Description}}">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="Category">Waste Category:</label>
+                <select class="form-select" name="Category" id="Category">
+                    <option hidden selected value="{{esg_data.Category}}">{{esg_data.Category}}</option>
+                    <option value="Energy">Energy</option>
+                    <option value="Drinking Water">Drinking Water</option>
+                    <option value="General Purpose Water">General Purpose Water</option>
+                    <option value="Chiller Water">Chiller Water</option>
+                    <option value="DG Oil">DG Oil</option>
+                    <option value="Fire Suppression Gas">Fire Suppression Gas</option>
+                    <option value="Refigerent Gas">Refigerent Gas</option>
+                    <option value="Batteries">Batteries</option>
+                </select>
+            </div>
+
+
+            <div class="col-md-2">
+                <label class="form-label" for="disposalType">Disposal Type:</label>
+                <select class="form-select" name="disposalType" id="disposalType">
+                    <option hidden selected value="{{esg_data.Type}}">{{esg_data.Type}}</option>
+                    <option value="Consumption">Consumption</option>
+                    <option value="Leakage">Leakage</option>
+                    <option value="Spillage">Spillage</option>
+                    <option value="End Of Life">End Of Life</option>    
+                    
+                    
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="Severity">Waste Severity:</label>
+                <select class="form-select" name="Severity" id="Severity">
+                    <option hidden selected value="{{esg_data.Severity}}">{{esg_data.Severity}}</option>
+                    <option value="Bio-Degradable">Bio-Degradable</option>
+                    <option value="Non-Degradable">Non-Degradable</option>
+                    <option value="Hazardous">Hazardous</option>
+                    <option value="Non-Hazardous">Non-Hazardous</option>
+                    <option value="Not Applicable">Not Applicable</option>
+                </select>
+            </div>
+
+
+            <div class="col-md-1">
+                <label class="form-label" for="Unit">Unit:</label>
+                <select class="form-select" name="Unit" id="Unit">
+                    <option hidden selected value="{{esg_data.Unit}}">{{esg_data.Unit}}</option>
+                    <option value="KWH">KWH</option>
+                    <option value="KG">KG</option>
+                    <option value="Liter">Liter</option>
+                    <option value="Count">Count</option>
+                    
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <label class="form-label" for="Quantity">Quantity:</label>
+                <input class="form-control" name="Quantity" id="Quantity" type="number" value="{{esg_data.Quantity}}">
+            </div>
+
+
+            <div class="col-md-4">
+                <label class="form-label" for="Remarks">Remarks:</label>
+                <input class="form-control" name="Remarks" id="Remarks" type="text" value="{{esg_data.Remarks}}">
+            </div>
+
+            
+            <div class="row g-3 my-3"> 
+                <div class="col-md-3" id="Upload">
+                    <label class="form-label-sm" for="Evidence_1">Evidence 1:</label>
+                    {% if esg_data.ESG_Evidence1 != "" %}
+                    <a href="{{esg_data.ESG_Evidence1.url}}" target="blank">Existing File</a>
+                    {% endif %}  
+                    <input class="form-control" name="evidence1" id="Evidence_1" type="file" style="color:red;">
+                </div>
+                
+                <div class="col-md-3" id="Upload">
+                    <label class="form-label-sm" for="Evidence_2">Evidence 2:</label>
+                    {% if esg_data.ESG_Evidence2 != "" %}
+                    <a href="{{esg_data.ESG_Evidence2.url}}" target="blank">Existing File</a>
+                    {% endif %}  
+                    <input class="form-control" name="evidence2" id="Evidence_2" type="file" style="color:red;">
+                </div>
+                <div class="col-md-3" id="Upload">
+                    <label class="form-label-sm" for="Evidence_3" >Evidence 3:</label>
+                    {% if esg_data.ESG_Evidence3 != "" %}
+                    <a href="{{esg_data.ESG_Evidence3.url}}" target="blank">Existing File</a>
+                    {% endif %}  
+                    <input class="form-control" name="evidence3" id="Evidence_3" type="file" style="color:red;">
+                </div>
+                <div class="col-md-3" id="Upload">
+                    <label class="form-label-sm" for="Evidence_4" >Evidence 4:</label>
+                    {% if esg_data.ESG_Evidence4 != "" %}
+                    <a href="{{esg_data.ESG_Evidence4.url}}" target="blank">Existing File</a>
+                    {% endif %}  
+                    <input class="form-control" name="evidence4" id="Evidence_4" type="file" style="color:red;">
+                </div>
+            </div> 
+
+            <div class="col-md-6" style="text-align: left;">
+                <input class="btn btn-outline-primary btn-sm" type="submit" value="Update">
+            </div>
+            <div class="col-md-6" style="text-align:right;">
+                <a class="btn btn-sm btn-warning" href="{% url 'ESG_Data'%}">Cancel</a>
+              </div>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

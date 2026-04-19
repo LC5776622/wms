@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Update User Profile{% endblock %}
+{% block body %}
+
+<style>
+    p, h3, h4, h5{
+       max-width: 600px;
+       margin: 0 auto;
+       padding: 10px;
+       /* border: 1px solid #ddd; */
+       border-radius: 5px;
+       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+   }
+
+   input[type="text"],
+   input[type="email"],
+   input[type="password"]{
+       width: 100%;
+       padding: 10px;
+       margin-bottom: 0px;
+       border: 1px solid #ccc;
+       border-radius: 5px;
+       box-sizing: border-box;
+   }
+   button[type="submit"]{
+       background-color: #4CAF50;
+       color: #fff;
+       padding: 10px 20px;
+       border: none;
+       border-radius: 5px;
+       cursor: pointer;
+   }
+   .success{
+       color: green;
+       margin-bottom: 20px;
+   }
+
+</style>
+
+<div class="container" id="profile">
+    <h4>Update User Profile</h4>
+    <form class="container" method="POST">
+        {% csrf_token %}
+        <p><strong>User ID:</strong> {{user.username}}</p>         
+        <p><strong>{{form.first_name.label_tag}}</strong>{{form.first_name}}</p>
+        <p><strong>{{form.last_name.label_tag}}</strong>{{form.last_name}}</p>
+        <p><strong>{{form.email.label_tag}}</strong>{{form.email}}</p>
+
+        <p><strong style="margin-right: 20px;">{{form.is_active.label_tag}}</strong>{{form.is_active}}</p>
+         
+        <p><strong>{{form.groups.label_tag}}</strong>
+        <div class="container col-md-6"> 
+            {{form.groups}}
+        </div></p>
+        <div class="container my-3" style="text-align:center">
+           <button class="btn btn-sm btn-outline-danger" type="submit">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+

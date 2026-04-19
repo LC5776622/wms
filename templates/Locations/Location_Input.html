@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{%load custom_filters%}
+{% block title %}Location Input {% endblock  %}
+
+{% block body %}
+
+
+<div class="container col-md-6 my-3 shadow" style="padding:10px;border:solid rgb(212, 211, 211) 1px;">
+    <h4 style="text-align: center;">Enter Location Details</h4>
+    <form class="row g-3 my-3" method="POST" action="/locationinput">
+        {% csrf_token %}
+        <div class="col-md-6">
+          <label for="Country"><b>Country:</b></label>
+          <input class="form-control" type="text" name="Country" id="Country" required>
+        </div>
+        <div class="col-md-6">
+            <label for="City"><b>City:</b></label>
+            <input class="form-control" type="text" name="City" id="City" required>
+        </div>
+
+        <div class="col-md-4">
+            <label for="Location"><b>Location:</b></label>
+            <input class="form-control" type="text" name="Location" id="Location" required>
+        </div>
+        <div class="col-md-4">
+          <label for="subLoc"><b>Sub-Location:</b></label>
+          <input class="form-control" type="text" name="subLoc" id="subLoc" required>
+      </div>  
+      <div class="col-md-4">
+        <label for="LocationCode"><b>Location Code:</b></label>
+        <input class="form-control" type="text" name="LocationCode" id="LocationCode" required>
+      </div>  
+    
+<hr>
+      <h6><u>Optional Details:</u></h6>
+      <div class="col-md-6">
+        <label for="Email"><b>Email:</b></label>
+        <input class="form-control" type="email" name="Email" id="Email" placeholder="Facility Helpdesk Email">
+      </div>
+      <div class="col-md-6">
+        <label for="contactNumber"><b>Contact Number:</b></label>
+        <input class="form-control" type="text" name="contactNumber" id="contactNumber" placeholder="Facility Helpdesk Number">
+      </div>
+      <div class="col">
+        <label for="Address"><b> Location Address:</b></label>
+        <textarea class="form-control" type="text" name="Address" id="Address"></textarea>
+      </div>
+
+
+       
+       <div class="col-12 my-3" style="text-align: center;">
+        <input type="submit" class="btn btn-sm btn-outline-dark">
+      </div>
+    </form>
+    {% if success_message %}
+    <div class="alert alert-success" role="alert" style="text-align:center;">
+        {{success_message}}
+    </div>
+    {% endif %}
+</div>
+{% if request.user|user_in_group:"Site-Admin"%}
+{% include "Locations/Location_Upload.html" %}
+{% endif %}
+{% endblock  %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+
+<div class="container col-md-8 my-5" style="text-align: center;">
+
+    <div class="alert alert-warning align-items-center my-5" role="alert">
+        <img src="/static/img/duplicate-list.png" alt="Alert" height="36"> 
+        <h4 style="color:rgb(99, 4, 4);">Uploaded With Exclusion!!!</h4>
+        <h6>Following records were excluded from upload as these are either duplicate entries in excel file or this data is already present in database:</h6>
+    </div>
+
+    <table class="table table-hover table-striped table-sm" id="toExcel">
+        <thead>
+            <tr>
+                <th>GL</th>
+                <th>GL Name</th>
+                <th>Head</th>
+            </tr>
+        </thead>
+        <tbody>
+              {% for data in dataset6 %}
+            <tr>
+                <td>{{ data.GL_Code }}</td>
+                <td>{{ data.GL_Name }}</td>
+                <td>{{ data.Expense_Head }}</td>
+            </tr>
+              {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <div class="container" style="text-align:center;">
+        <button class="btn btn-sm btn-primary my-2" onclick="exceller()">Download To Excel</button>
+    </div>
+    <br>
+    
+    Go Back To Expense Catgegories Input Page.
+
+    <br><br>
+    <a class="btn btn-sm btn-warning" href="glinput" role="button">Go Back</a>
+</div>
+
+      {% endblock body %}

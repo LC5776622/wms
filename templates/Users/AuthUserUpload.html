@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %} Authorized Users Upload{% endblock title %}
+
+{% block body %}
+<div class="container col-md-6 my-3" style="text-align:center;">
+    <div class="container my-3 shadow" style="border: solid 1px lightgrey; padding: 10px; text-align:center;">
+            <h4>Upload Authorized Users</h4>
+            <br>
+            <form method="post" action="/authUserUpload" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group container col-md-9">
+                            <label for="userfile" class="form-label">Select Authorized Users File To Upload:</label>
+                            <input class="form-control" style="color: red    ;" type="file" name="userfile" id="userfile" required>
+                    </div>
+                    <br>
+                    
+                    <div class="container col-12 my-3">       
+                            <button type="submit" class="btn btn-sm btn-outline-dark">Upload</button>
+                    </div>
+            </form>
+            <br>
+            {% if success_message %}
+            <div class="alert alert-success" role="alert">
+                {{success_message}}
+            </div>
+            {% elif error_message %}
+            <div class="alert alert-warning" role="alert">
+                <b>Warning!</b> {{error_message}}
+            </div>
+            {% endif %}
+            <br>
+            <div class="form-group container-flex" style="text-align: right;">
+                <a href="static/samples/AuthorizedUsersSampleFile.xlsx">Sample File</a>
+            </div>
+    </div>
+</div>
+  
+{% endblock body %}
+

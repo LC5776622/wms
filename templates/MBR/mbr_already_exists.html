@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+
+<div class="container col-md-6 my-3" style="text-align: center;">
+    <div class="alert alert-danger shadow" role="alert">
+      <img src="/static/img/duplicate.png" alt="Warning" height="40">
+      <h3>Duplicate Entry Warning!!!</h3>
+      <hr>
+      {% for data in duplicateMBR %}
+      <p>MBR Data already has been entered for <b>{{data.ReportLocation}}</b> location for the month of <b>{{data.ReportMonth}}</b>.</p>
+      <p>Please go to <a href="{% url 'SpaceData' %}"><b>View MBR Data</b></a> section under <b>'View Data'</b> tab to View & Edit existing data.</p>
+      {% endfor %}
+    </div>
+    <br> 
+    <div class="col">
+      <p>Go Back To MBR Data Input Page.</p>
+      <a class="btn btn-warning" href="{% url 'MBRInput'%}" role="button">Go Back</a>
+    </div>
+</div>
+{% endblock %}

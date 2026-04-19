@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Routine Waste Disposal Input{% endblock  %}
+
+{% block body %}
+
+<div class="container my-1" style="text-align:center;">
+    <div class="btn-group" >
+        <a href="{% url 'WM_Routine_Input' %}" class="btn btn-sm btn-outline-dark active" aria-current="page">Routine Waste</a>
+        <a href="{% url 'WM_Non_Routine_Input' %}" class="btn btn-sm btn-outline-dark">Non-Routine Waste</a>
+        <a href="{% url 'WM_EWaste_Input' %}" class="btn btn-sm btn-outline-dark" aria-current="page">E-Waste</a>
+        <a href="{% url 'ESG_Input' %}" class="btn btn-sm btn-outline-dark" aria-current="page">ESG Data</a>
+    </div>
+</div>
+
+
+
+<div class="container col-md-9">
+    <h4 class="shadow" style="padding: 5px; background-color: rgb(6, 163, 40); color: aliceblue;">Routine Waste Disposal Input</h4>
+    <div class="container-flex shadow" style="padding: 15px; border: solid 1px lightgrey;">
+        <form class="form-group row g-3" action="/wmr_input" method="POST" id="inputForm">
+            {% csrf_token %}
+            <div class="container-flex row g-3">
+                <div class="col">
+                    <label class="form-label-sm" for="disposalDate">Disposal Date:</label>
+                    <input class="form-control" name="disposalDate" id="disposalDate" type="date">
+                </div>
+            
+                <div class="col">
+                    <label class="form-label-sm" for="Country">Country:</label>
+                    <select id="Country" name="Country" class="form-select" required>
+                        {% if request.user|user_in_group:"Admin-Leaders"%}
+                        <option hidden selected value="">--Select Country--</option>
+                        {% for country in countries %}
+                        <option  value="{{country}}">{{country}}</option>
+                        {% endfor %}
+                        {% else %}
+                        <option value="{{user_country}}">{{user_country}}</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col">
+                    <label class="form-label-sm" for="Location">Location:</label>
+                    <select id="Location" name="Location" class="form-select" required>
+                        {% if request.user|user_in_group:"Admin-Leaders"%}
+                    <option hidden selected value="">--Select Location--</option>
+                        {% else %}
+                    <option value="{{user_location}}">{{user_location}}</option>
+                    {% endif %}
+                    </select>
+                        
+                </div>
+
+                <div class="col">
+                    <label class="form-label-sm" for="Function">Function:</label>
+                    <select class="form-select" name="Function" id="Function">
+                        <option hidden selected value="">--Function--</option>
+                        <option value="Facilities">Facilities</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Physical Security">Physical Security</option>
+                        <option value="TPO">TPO</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div class="col">
+                    <label class="form-label-sm" for="disposalType">Disposal Type:</label>
+                    <select class="form-select" name="disposalType" id="disposalType">
+                        <option hidden selected value="">--Disposal Type--</option>
+                        <option value="Recycle">Recycle</option>
+                        <option value="Scrap">Scrap</option>
+                    </select>
+                </div>
+            </div>
+            <div class="container-flex row g-3">
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="itemDesc">Item Description:</label>
+                    <input class="form-control" name="itemDesc" id="itemDesc" type="text">
+                </div>
+
+                <div class="col">
+                    <label class="form-label-sm" for="wasteType">Waste Type:</label>
+                    <select class="form-select" name="wasteType" id="wasteType">
+                        <option hidden selected value="">--Waste Type--</option>
+                        <option value="Dry Waste">Dry Waste</option>
+                        <option value="Wet Waste">Wet Waste</option>
+                        <option value="Plastic Waste">Plastic Waste</option>
+                        <option value="Bio Waste">Bio-Medical Waste</option>
+                    </select>
+                </div>
+
+                <div class="col">
+                    <label class="form-label-sm" for="wasteState">Waste State:</label>
+                    <select class="form-select" name="wasteState" id="wasteState">
+                        <option hidden selected value="">--Waste State--</option>
+                        <option value="Solid">Solid</option>
+                        <option value="Semi Liquid">Semi Liquid</option>
+                        <option value="Liquid">Liquid</option>
+                    </select>
+                </div>
+
+                <div class="col">
+                    <label class="form-label-sm" for="Severity">Waste Severity:</label>
+                    <select class="form-select" name="Severity" id="Severity">
+                        <option hidden selected value="">--Severity--</option>
+                        <option value="Bio-Degradable">Bio-Degradable</option>
+                        <option value="Non-Degradable">Non-Degradable</option>
+                        <option value="Hazardous">Hazardous</option>
+                        <option value="Non-Hazardous">Non-Hazardous</option>
+
+                    </select>
+                </div>
+
+                <div class="col">
+                    <label class="form-label-sm" for="Unit">Unit:</label>
+                    <select class="form-select" name="Unit" id="Unit">
+                        <option hidden selected value="">--Unit--</option>
+                        <option value="KG">KG</option>
+                        <option value="Liter">Liter</option>
+                        <option value="Count">Count</option>
+                        <option value="Meter">Meter</option>
+                        <option value="Lot">Lot</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="container-flex row g-3">
+                <div class="col-md-2">
+                    <label class="form-label-sm" for="Quantity">Quantity:</label>
+                    <input class="form-control" name="Quantity" id="Quantity" type="number" step="0.001">
+                </div>
+                <div class="col">
+                    <label class="form-label-sm" for="disposedBy">Disposed By:</label>
+                    <select class="form-select" name="disposedBy" id="disposedBy">
+                        <option hidden selected value="">--Disposed By--</option>
+                        {% for user in UserFilter %}
+                        <option value="{{user}}">{{user}}</option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="col">
+                    <label class="form-label-sm" for="verifiedBy">Verified By:</label>
+                    <select class="form-select" name="verifiedBy" id="verifiedBy">
+                        <option hidden selected value="">--Verified By--</option>
+                        {% for user in Verifiers %}
+                        <option value="{{user}}">{{user}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label-sm" for="Remarks">Remarks:</label>
+                    <input class="form-control" name="Remarks" id="Remarks" type="text">
+                </div>
+            </div>
+            <div class="container" style="text-align: center;">
+                <input class="btn btn-outline-dark btn-sm" type="submit">
+            </div>
+        </form>
+        {% if success_message %}
+        <div class=" flex alert alert-success my-3" role="alert" style="text-align:center;">
+            {{success_message}}
+        </div>
+        {% endif %}
+    </div>
+    <div class="container-flex my-3">
+        {% include "Waste Management/Routine/Routine_Upload.html" %}
+    </div>
+</div>
+
+{% endblock %}

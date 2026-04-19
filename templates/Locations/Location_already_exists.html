@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+
+<div class="container col-md-9 my-5" style="text-align: center;">
+
+  <div class="alert alert-danger align-items-center my-5" role="alert">
+  
+    <img src="/static/img/duplicate.png" alt="Warning" height="36"> 
+    <h3 style="color:rgb(138, 50, 0);">Attention!!!</h3>
+
+        {% for data in locations %}
+        Vendor <b>{{data.country}}</b> from <b>{{data.city}}</b> location under <b>{{data.location}}</b> category with <b>{{data.sub_locs}}</b> description already has been added. Kinldy go to <a href="{% url 'Location_View'%}"><b>View Location Data</b></a> section under <b>View Data</b> tab to View & Edit existing data.
+        {% endfor %}
+
+    </div>
+    <br><br>
+    Go Back To Locations Input Page.
+    <br><br>
+    <a class="btn btn-sm btn-warning" href="locationinput" role="button">Go Back</a>
+</div>
+
+      {% endblock body %}

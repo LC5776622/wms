@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% load static %}
+{%load custom_filters%}
+{% block title %}Waste Management Report{% endblock%}
+{% block body %}
+<script src="{% static 'scripts/2.9.4/Chart.min.js' %}"></script>
+<script src="{% static 'scripts/html2pdf.min.js' %}"></script>
+<style>
+    #YoY>table>tbody>tr>td, #YoY>table>tbody>tr>th, #pivot>table>tbody>tr>td, #pivot>table>tbody>tr>th{font-size: small;}
+
+</style>
+<div class="container-fluid my-3" style="text-align:center;" >
+    <form class='form-group row' method="get" action="/WMreport">
+        <div class="container-flex row">
+            <div class="col-md-6">
+              <label for="year">Year:</label>
+              <select id="year" name="year">
+                  <option selected value="All">--All--</option>
+                  {% for year in years %}
+                  <option value="{{ year }}">{{ year }}</option>
+                  {% endfor %}
+              </select>
+
+              <label for="quarter">Quarter:</label>
+              <select id="quarter" name="quarter">
+                  <option selected value="All">--All--</option>
+                  {% for quarter in quarters %}
+                  <option value="{{ quarter }}">Q{{quarter }}</option>
+                  {% endfor %}
+              </select>
+
+              <label for="month">Month:</label>
+              <select id="month" name="month">
+                  <option selected value="All">--All--</option>
+                  {% for month in months %}
+                  <option value="{{ month }}">{{month|get_month_name }}</option>
+                  {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-5">
+              <label for="location">Location:</label>
+              <select id="location" name="location">
+                  <option selected value="All">--All--</option>
+                  {% for location in locations %}
+                  <option value="{{ location }}">{{ location }}</option>
+                  {% endfor %}
+              </select>
+{% comment %} 
+              <label for="category">Category:</label>
+              <select id="category" name="category">
+                  <option selected value="All">--All--</option>
+                  {% for category in categories %}
+                  <option value="{{ category }}">{{ category }}</option>
+                  {% endfor %}
+              </select>   {% endcomment %}
+            </div>
+      
+            <div class="col-md-1">
+              <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+            </div>
+        </div>
+    </form>
+
+    {% if error_message %}
+    <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+        <img src="/static/img/info.png" alt="info" height="22">
+        <div class="container">
+            {{ error_message }}
+        </div>
+    </div>
+</div>
+    {% else %}
+<div class="container my-3" id="pdfElements">
+    {% if routine_data %}
+    <div class="container-fluid row my-3">
+        <h5>Month-Wise Waste Disposal in KG (General Waste)</h5>
+        <canvas id="type-chart" height="275%"></canvas>
+    </div>
+    <div class="container-fluid row my-3">
+        <div class="col-md-6">
+            <h5>Month-Wise Waste Disposal in KG (Bio-Medical Waste)</h5>
+            <canvas id="bio-chart"></canvas>
+        </div>
+        <div class="col-md-6 row hide-col" id="pivot">
+            <h5>Month-Wise Routine Waste Disposal in KG</h5>
+            {{pivot_table1 |safe}}
+        </div>
+    </div>
+    <div class="html2pdf__page-break"></div>
+
+    <div class="container-fluid row my-3"> 
+        <h5>Routine Waste Disposal Quantity by Disposal Type (KG)</h5>
+        <canvas id="disposal-chart" height="275%"></canvas>
+    </div> 
+    <div class="html2pdf__page-break"></div>
+    {% endif %}
+    
+    {% if non_routine_data %}
+    <div class="container row hide-col my-3" id="pivot">
+        <h5>Non-Routine Waste Disposal Summary by Category</h5>
+        {{pivot_table2 |safe}}
+    </div>
+    <div class="html2pdf__page-break"></div>
+    {% endif %}
+    {% if e_waste_data %}
+    <div class="container row my-3 hide-col" id="pivot">
+        <h5>E-Waste Disposal Summary by Category</h5>
+        {{pivot_table3 |safe}}
+    </div>
+
+  <div class="container-fluid my-3" id="toExcel">
+      <div class="container row my-3 hide-col" id="pivot">
+        <h5>ESG Data Summary by Category</h5>
+        {{pivot_table4 |safe}}
+    </div>
+
+    
+      <h5>ESG Data Summary by Location</h5>
+      <div class="container row" id="pivot">
+      {{pivot_table5 |safe}}
+      </div>
+  </div>
+
+    {% endif %}
+
+</div>
+<div class="containe row" style="text-align:center;">
+  <div class="container col-md-6" style="text-align:center;">
+    <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+  </div>
+  <div class="container col-md-6" style="text-align: center;">
+      <button class="btn btn-sm btn-success" type="button" onclick="pdfDownload()">Download PDF</button>
+  </div>
+</div>
+    {% endif %}
+
+
+<script>
+    function pdfDownload(){
+      var pdfElements = document.getElementById("pdfElements")
+      html2pdf(pdfElements, {
+      margin: 5,
+      filename: 'Waste_Management_Report.pdf',
+      image : {type:'jpeg', quality: 0.98},
+      html2canvas : {scale:2, logging:true, dpi: 240, letterRendering: true},
+      jsPDF : {unit:'mm', format :'legal', orientation: 'landscape'}
+    });
+    };
+</script>
+
+<script>
+    var ctx = document.getElementById('type-chart').getContext('2d');
+    var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var numericMonths = {{waste_labels|safe}};
+    var labels = numericMonths.map(function(month){
+      return monthNames[month-1];
+    });
+  
+    var datasets = {{type_chart|safe}};
+    var colors = [ '#3BCFF0','red', '#4BCD3E'];
+    datasets.forEach(function(dataset, index){
+      dataset.backgroundColor = colors[index];
+    });
+  
+    var data = {
+      labels : labels,
+      datasets: datasets,}
+  
+    var myChart = new Chart(ctx, {
+      type :'bar',
+      data: data,
+      options :{ "hover": { "animationDuration": 0 }, "animation": {  "duration": 1,
+      "onComplete": function() {
+        var chartInstance = this.chart,
+          ctx = chartInstance.ctx;
+        ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        this.data.datasets.forEach(function(dataset, i) {
+          var meta = chartInstance.controller.getDatasetMeta(i);
+          meta.data.forEach(function(bar, index) {
+            var data = dataset.data[index];
+            ctx.fillText(data, bar._model.x, bar._model.y - 5);
+          });
+        });
+        }
+      },
+      maintainAspectRatio: false, responsive :false,
+      scales: { yAxis: [{ ticks: { display:false, beginAtZero :true, } }]},
+      plugins: {legend :{ display :false },
+          datalabels :{ display:'auto', anchor :'end', align :'top', color : 'black',
+              formatter : function(value, context) {return value;},
+              font :{ weight: 'bold' }
+            }
+          }
+        }
+    });
+</script>
+
+<script>
+  var ctx = document.getElementById('disposal-chart').getContext('2d');
+  var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var numericMonths = {{disposal_labels|safe}};
+  var labels = numericMonths.map(function(month){
+    return monthNames[month-1];
+  });
+
+  var datasets = {{disposal_chart|safe}};
+  var colors = [ '#4BCD3E','#3BCFF0', '#4BCD3E'];
+  datasets.forEach(function(dataset, index){
+    dataset.backgroundColor = colors[index];
+  });
+
+  var data = {
+    labels : labels,
+    datasets: datasets,}
+
+  var myChart = new Chart(ctx, {
+    type :'bar',
+    data: data,
+    options :{ "hover": { "animationDuration": 0 }, "animation": {  "duration": 1,
+    "onComplete": function() {
+      var chartInstance = this.chart,
+        ctx = chartInstance.ctx;
+      ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      this.data.datasets.forEach(function(dataset, i) {
+        var meta = chartInstance.controller.getDatasetMeta(i);
+        meta.data.forEach(function(bar, index) {
+          var data = dataset.data[index];
+          ctx.fillText(data, bar._model.x, bar._model.y - 5);
+        });
+      });
+      }
+    },
+    maintainAspectRatio: false, responsive :false,
+    scales: { yAxis: [{ ticks: { display:false, beginAtZero :false, } }]},
+    plugins: {legend :{ display :false },
+        datalabels :{ display:'auto', anchor :'end', align :'top', color : 'black',
+            formatter : function(value, context) {return value;},
+            font :{ weight: 'bold' }
+          }
+        }
+      }
+  });
+</script>
+
+<script>
+    var severityChart = JSON.parse('{{ bio_chart|escapejs }}');
+    var severityCtx = document.getElementById('bio-chart').getContext('2d');
+    var severityChart = new Chart(severityCtx, severityChart);
+</script>
+
+
+<script>
+    function loadFilters() {
+      const filters = ['year', 'quarter', 'month', 'location', 'category'];
+      filters.forEach(filter => {
+        const savedValue = localStorage.getItem(filter);
+        if (savedValue) {
+          document.getElementById(filter).value = savedValue;
+        }
+      });
+    }
+    const filterElements = document.querySelectorAll('select');
+    filterElements.forEach(filterElement => {
+      filterElement.addEventListener('change', function(){
+        localStorage.setItem(this.id, this.value);
+      });
+    });
+    window.addEventListener('DOMContentLoaded', loadFilters)
+</script>
+
+    {% endblock %}

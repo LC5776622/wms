@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %} EnPI Chart{% endblock %}
+{% block body %}
+<script src="{% static 'scripts/2.9.4/Chart.min.js' %}"></script>
+<script src="{% static 'scripts/html2pdf.min.js' %}"></script>
+<style>
+  #EnMSOpp>thead>tr>th{
+    font-size: smaller;
+  }
+  #EnMSOpp>tbody>tr>td{
+    font-size: smaller;
+  }
+</style>
+<div class="container-flex my-3"style="text-align:center;">
+  <form class='form-group' method="get" action="/enmsreport">
+    <div class=" container-flex row g-3">
+      <div class="col">
+        <label for="report_year">Year:</label>
+        <select id="report_year" name="report_year">
+          <option value="All">All Years</option>
+          {% for year in report_years %}
+          <option value="{{ year }}">{{ year }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col">
+        <label for="report_quarter">Quarter:</label>
+        <select id="report_quarter" name="report_quarter">
+          <option value="All">All Quarters</option>
+          {% for quarter in report_quarters %}
+          <option value="{{ quarter }}">{{quarter}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col">
+        <label for="report_month">Month:</label>
+        <select id="report_month" name="report_month">
+          <option value="All">All Months</option>
+          {% for month in report_months %}
+
+          <option value="{{ month }}">{{month|convert_date_format}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col">
+        <label for="report_country">Country:</label>
+        <select id="report_country" name="report_country">
+          <option value="All">All Countries</option>
+          {% for country in report_countriess %}
+          <option value="{{ country }}">{{ country }}</option>
+          {% endfor %}
+        </select>
+      </div> 
+      <div class="col">
+        <label for="report_location">Location:</label>
+        <select id="report_location" name="report_location">
+          <option value="All">All Locations</option>
+          {% for location in report_locations %}
+          <option value="{{ location }}">{{ location }}</option>
+          {% endfor %}
+        </select>
+      </div> 
+      <div class="col">
+          <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+      </div>
+    </div>
+  </form>
+  {% if error_message %}
+  <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+    <img src="/static/img/info.png" alt="info" height="22">
+    <div class="container">
+      {{ error_message }}
+    </div>
+  </div>
+  {% else %}
+</div>
+
+<div class="container my-3" style="text-align:center;" id="pdfElements">
+  <h1>EnMS Report</h1>
+  <div class="container-fluid row my-3">
+    <div class="col">
+      <h5>Location-Wise EnPI Scores</h5>
+          <table class="table table-sm table-hover">
+              <thead>
+                <tr>
+                  <th>Location</th>
+                  <th>PAC</th>
+                  <th>HVAC</th>
+                  <th>UPS</th>
+                  <th>Lightings</th>
+                  <th>Cafe Equipment</th>
+                  <th>Inverter</th>
+                  <th>Others 1</th>
+                  <th>Others 2</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for data in table_data1 %}
+                <tr>
+                  <td>{{data.Location_Name}}</td>
+                  <td>{{data.PAC}}</td>
+                  <td>{{data.HVAC}}</td>
+                  <td>{{data.UPS}}</td>
+                  <td>{{data.Lighting}}</td>
+                  <td>{{data.Cafe_Equip}}</td>
+                  <td>{{data.Inverter}}</td>
+                  <td>{{data.Others1}}</td>
+                  <td>{{data.Others2}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+    </div>
+    <div class="col">
+          <h5>Month-Wise EnPI Scores</h5>
+            <table class="table table-sm table-hover">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>PAC</th>
+                  <th>HVAC</th>
+                  <th>UPS</th>
+                  <th>Lightings</th>
+                  <th>Cafe Equipment</th>
+                  <th>Inverter</th>
+                  <th>Others 1</th>
+                  <th>Others 2</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for data in table_data2 %}
+                <tr>
+                  <td>{{data.Month_Name}}</td>
+                  <td>{{data.PAC}}</td>
+                  <td>{{data.HVAC}}</td>
+                  <td>{{data.UPS}}</td>
+                  <td>{{data.Lighting}}</td>
+                  <td>{{data.Cafe_Equip}}</td>
+                  <td>{{data.Inverter}}</td>
+                  <td>{{data.Others1}}</td>
+                  <td>{{data.Others2}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+    </div>
+    <div class="html2pdf__page-break"></div>
+
+    <div class="my-3">
+        <h3>Location-Wise EnPI Scores</h3>
+        <canvas id="locationChart" height="85%"></canvas>
+    </div>
+
+    <div class="html2pdf__page-break"></div>
+
+    <div class="container col-12 my-3">
+      <h3>Identified Opportunities & Status</h3>
+      <canvas id="opportunity-chart" height="85%"></canvas>
+    </div>
+
+    <div class="html2pdf__page-break"></div>
+    <div class="container">
+      <h3>EnMS Opportunity Tracker</h3>
+      <table class="table table-hover table-sm" style="vertical-align: middle;" id="EnMSOpp">
+        <thead>
+          <tr>
+            <th>Sr. No.</th>
+            <th scope="col">Location</th>
+            <th scope="col">SEU Type</th>
+            <th scope="col">SEU Description</th>
+            <th scope="col">Identified Opportunity</th>
+            <th scope="col">Intended Target/ Outcome</th>
+            <th scope="col">Identification Date</th>
+            {% comment %} <th scope="col">Approx. Cost</th> {% endcomment %}
+            <!-- <th scope="col">Approx. Saving</th>  -->
+            <th scope="col">Remarks</th>
+            <th scope="col">Target Date</th>
+            <th scope="col">Status</th>
+            <th scope="col">Actual Implementation</th>
+          </tr>
+        </thead>
+        
+        <tbody id="geeks">
+          {% for data in opp_data %}
+          <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{data.location}}</td>
+            <td>{{data.category}}</td>
+            <td>{{data.desc}}</td>
+            <td>{{data.opportunity}}</td>
+            <td>{{data.target}}</td>
+            <td>{{data.identify_date}}</td>
+            {% comment %} <td>{{data.cost_amt}}</td> {% endcomment %}
+            <!-- <td>{{data.saving_amt}}</td> -->
+            <td>{{data.remarks}}</td>
+            <td>{{data.target_date}}</td>
+            <td>{{data.status}}</td>
+            <td>{{data.actual_implement}}</td>
+          </tr>
+          {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="container justify-content-center" style="text-align: center;">
+  <button class="btn btn-sm btn-success" type="button" onclick="pdfDownload()">Download PDF</button>
+</div>
+{% endif %} 
+
+
+<script type="text/javascript">
+  var locationChart = JSON.parse('{{ location_chart|escapejs }}');
+  // var monthChart = JSON.parse('{{ month_chart|escapejs }}');
+
+  var locationCtx = document.getElementById('locationChart').getContext('2d');
+  var locationChart = new Chart(locationCtx, locationChart);
+
+  // var monthCtx = document.getElementById('month-chart').getContext('2d');
+  // var monthChart = new Chart(monthCtx, monthChart);
+  
+</script>
+
+<script type="text/javascript">
+  var opportunityChart = JSON.parse('{{ opportunity_chart|escapejs }}');
+  // var categoryChart = JSON.parse('{{ category_chart|escapejs }}');
+
+  var opportunityCtx = document.getElementById('opportunity-chart').getContext('2d');
+  var opportunityChart = new Chart(opportunityCtx, opportunityChart);
+
+  // var categoryCtx = document.getElementById('category-chart').getContext('2d');
+  // var categoryChart = new Chart(categoryCtx, categoryChart);
+</script>
+
+<script>
+  function pdfDownload(){
+    var pdfElements = document.getElementById("pdfElements")
+    html2pdf(pdfElements, {
+    margin: 5,
+    filename: 'EnMS_Report.pdf',
+    image : {type:'jpeg', quality: 0.98},
+    html2canvas : {scale:2, logging:true, dpi: 192, letterRendering: true},
+    jsPDF : {unit:'mm', format :'legal', orientation: 'landscape'}
+  });
+  };
+</script>
+{% endblock %}
+

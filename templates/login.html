@@ -1,0 +1,49 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{% static 'css/5.1.3/bootstrap.min.css'%}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <title>Login</title>
+ 
+  </head>
+  <body class="text-center">
+    <div class="container col-md-4 shadow" style="border: solid 1px lightgray;">
+
+      <h3 style="color: green; padding-top:5px; ">Facility Reports Potal</h3>
+      <form class="form-signin" method="POST" action="/login">
+        {% csrf_token %}
+        <img class="mb-4" src="/static/img/FISLogo.png" alt="" width="100">
+        <h1 class="h4 mb-3 fw-normal">Please Sign In</h1>
+
+        <div class="form-floating">
+          <input type="text" class="form-control" name="username" id="username" onkeypress="CheckSpace(event)" placeholder="Enter Your UserID">
+          <label for="username">User ID</label>
+        </div>
+
+        <div class="form-floating">
+          <input type="password" class="form-control" name="password" id="password" onkeypress="CheckSpace(event)" placeholder="Password">
+          <label for="password">Password</label>
+        </div>
+
+        <div class="checkbox mb-3">
+          <label>
+            <input type="checkbox" value="remember-me"> Remember Me
+          </label>
+        </div>
+        <button class="w-100 btn btn-lg" style="background-color: rgb(3, 148, 3); color: white;" type="submit">Sign in</button>
+      </form>  
+      {% if error_message %}
+      <div class=" flex alert alert-danger" role="alert" style="text-align:center;">
+          {{error_message}}
+      </div>
+      {% endif %}
+      <a href="{% url 'Register' %}">New User? Click Here To Register</a>
+      <p class="mt-3 mb-3 text-muted">&copy; FIS GBS India Pvt. Ltd. (2023–2024)</p>
+    </div>
+
+    <script src="{% static 'scripts/noSpace.js' %}"></script>
+  </body>
+</html>

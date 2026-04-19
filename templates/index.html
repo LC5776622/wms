@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block title %} Home {% endblock %}
+{% block body %}
+<script src="{% static 'scripts/datetimeclock.js' %}"></script>
+<style>
+  table>tbody>tr>td{
+  text-align: left;
+  }
+  .accordion-button{
+  padding: 10px;
+  color: rgb(104, 104, 104);
+  background-color: whitesmoke;
+  }
+  table>tbody>tr>td, a{
+  font-size: 1rem;
+  text-decoration: none;
+  color: rgb(104, 104, 104);
+  border: none;
+  }
+  td, tr{
+  border: none;
+  }
+</style>
+
+<header class="my-0" id="greeting">
+  <div class="col" style="margin-top: 5px; margin-left: 20px;">
+    <h6>{{greeting}} {{user.first_name}} {{user.last_name}}</h6>
+  </div>
+  <div class="col" style="margin-top: 5px; margin-right:20px; text-align: right;">
+    {% block datetimeclock %}<h6 id="clock"></h6>{% endblock %}
+  </div>
+</header> 
+
+<div class="container-fluid row g-1 ">
+    <div class="container-flex col-md-2 g-2">  
+      <div class="accordion accordion-flush" id="accordionFlushExample">
+        <!--<div class="accordion-item">
+          <h2 class="accordion-header" id="flush-headingOne">
+            <button class="accordion-button collapsed btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+              MBR Tracker
+            </button>
+          </h2>
+          <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+              <table class="table table-hover">
+                {% if request.user|user_in_group:"Read_Write"%}
+                  <tr> <td><a href="{% url 'MBRInput'%}">Input MBR Data</a></td></tr>
+                  {% endif %}
+                  <tr><td> <a href="{% url 'SpaceData'%}">View MBR Data</a></td></tr>
+                  <tr><td><a href="{% url 'MBR_Report'%}">View MBR Report</a></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>-->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="flush-headingTwo">
+            <button class="accordion-button collapsed btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+              Incident Tracker
+            </button>
+          </h2>
+          <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">            
+              <table class="table table-hover">
+                {% if request.user|user_in_group:"Read_Write"%}
+                <tr><td> <a href="{% url 'IncidentInput'%}">Input Incident Data</a></td></tr>
+                {% endif %}
+                <tr><td> <a href="{% url 'IncidentData'%}">View Incident Data</a></td></tr>
+                <tr><td> <a href="{% url 'Incident_Report'%}">View Incident Report</a></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="flush-headingFour">
+            <button class="accordion-button collapsed btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFour" aria-expanded="false" aria-controls="flush-collapseTwo">
+              Waste Management
+            </button>
+          </h2>
+          <div id="flush-collapseFour" class="accordion-collapse collapse" aria-labelledby="flush-headingFour" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">            
+              <table class="table table-hover">
+                {% if request.user|user_in_group:"Read_Write"%}
+                <tr><td> <a href="{% url 'WM_Routine_Input'%}">Waste Disposal Input</a></td></tr>
+                {% endif %}
+                <tr><td> <a href="{% url 'Routine_View'%}">Waste Disposal Data</a></td></tr>
+                <tr><td> <a href="{% url 'WM_Report'%}">Waste Disposal Report</a></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="flush-headingFive">
+                <button class="accordion-button collapsed btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFive" aria-expanded="false" aria-controls="flush-collapseFive">
+                  OPEX Tracker
+                </button>
+          </h2>
+          <div id="flush-collapseFive" class="accordion-collapse collapse" aria-labelledby="flush-headingFive" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                  <table class="table table-hover">
+                    {% if request.user|user_in_group:"Site-Admin"%}
+                    <tr><td><a href="{% url 'GL_Input'%}">Input GL Details</a></td></tr>
+                    {% endif %}
+                    {% if request.user|user_in_group:"Read_Write"%}
+                    <tr><td><a href="{% url 'OPEX_Upload'%}">Input OPEX Data</a></td></tr>
+                    {% endif %}
+                    <tr><td> <a href="{% url 'OpexView'%}">View OPEX Data</a></td></tr>
+                    <tr><td> <a href="{%url 'OPEX_Report'%}">View OPEX Report</a></td></tr>
+                  </table>
+                </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="flush-headingSix">
+            <button class="accordion-button collapsed btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSix" aria-expanded="false" aria-controls="flush-collapseFive">
+              Invoice Tracker
+            </button>
+          </h2>
+          <div id="flush-collapseSix" class="accordion-collapse collapse" aria-labelledby="flush-headingSix" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+              <table class="table table-hover">
+                {% if request.user|user_in_group:"Read_Write"%}
+                <tr><td><a href="{% url 'Invoice_Input'%}">Input Invoice Details</a></td></tr>
+                {% endif %}
+                <tr><td> <a href="{% url 'InvoiceView'%}">View Invoice Details</a></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="flush-headingSeven">
+            <button class="accordion-button collapsed btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSeven" aria-expanded="false" aria-controls="flush-collapseFive">
+              Vendor Data
+            </button>
+          </h2>
+          <div id="flush-collapseSeven" class="accordion-collapse collapse" aria-labelledby="flush-headingSeven" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+              <table class="table table-hover">
+                {% if request.user|user_in_group:"Read_Write"%}
+                <tr><td><a href="{% url 'Vendor_Input'%}">Input Vendor Details</a></td></tr>
+                {% endif %}
+                <tr><td> <a href="{% url 'VendorView'%}">View Vendor Details</a></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="flush-headingSeven">
+            <button class="accordion-button collapsed btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSeven" aria-expanded="false" aria-controls="flush-collapseFive">
+              Training & Awareness
+            </button>
+          </h2>
+          <div id="flush-collapseSeven" class="accordion-collapse collapse" aria-labelledby="flush-headingSeven" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+              <table class="table table-hover">
+                {% if request.user|user_in_group:"Site-Admin"%}
+                <tr><td><a href="{% url 'Upload_Course'%}">Upload Course</a></td></tr>
+                {% endif %}
+                <tr><td> <a href="{% url 'View_Courses'%}">Assigned Course</a></td></tr>
+                <tr><td> <a href="{% url 'Acknowledgement_View'%}">Acknowledgements</a></td></tr>
+                <tr><td> <a href="{% url 'User_Responses'%}">Quiz Responses</a></td></tr>
+                {% if request.user|user_in_group:"Admin-Leaders"%}
+                <tr><td><a href="{% url 'Awareness_Sumamry'%}">Awareness Summary</a></td></tr>
+                {% endif %}
+              </table>
+            </div>
+          </div>
+        </div> 
+
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="flush-headingEight">
+                <button class="accordion-button collapsed btn-sm btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseEight" aria-expanded="false" aria-controls="flush-collapseSix">
+                  Power BI<sup style="color:red;"><b>**</b></sup>
+                </button>
+          </h2>
+          <div id="flush-collapseEight" class="accordion-collapse collapse" aria-labelledby="flush-headingEight" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+              <table class="table table-hover">
+                {% for data in reports %}
+                <tr><td><a href="{{data.url}}" target="_blank">{{data.report_name}}</a><sup style="color:red;"><b>**</b></sup></td></tr>
+                {% endfor %}
+              </table>   
+            </div>
+          </div>
+        </div>
+      </div>
+        <div class="container-fluid my-3" style="height: max-content;"><p><b style="color:red;">**</b>Power BI Pro Required</p>
+        </div> 
+    </div>
+
+    <div class="container-flex col-md-9 row justify-content-around mx-5 " style="height: 400px; margin-left: 50px;">
+      <div class="container-flex row justify-content-around">
+        <!-- <div class="col-md-3 my-5 mx-auto" style="height: 100px;">
+          <div class="card shadow" style="width: 10rem;">
+            {% if request.user|user_in_group:"Read_Write"%}
+            <a href="{% url 'MBRInput' %}"><img src="{% static 'img/MBR.png' %}"  class="card-img-top w-100" alt="MBR" style="padding: 10px; border: 1px grey;"></a>
+            <div class="card-body">
+              <h5 class="card-title"><a href="{% url 'MBRInput' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Business Review</a></h5>   
+            </div>
+            {% else %}
+            <a href="{% url 'SpaceData' %}"><img src="{% static 'img/MBR.png' %}"  class="card-img-top w-100" alt="MBR" style="padding: 10px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'SpaceData' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Business Review</a></h5>   
+            {% endif %}
+          </div>
+        </div> -->  
+        
+        <div class="col-md-3 my-5 mx-auto" style="height: 100px;">
+          <div class="card shadow" style="width: 10rem;">
+            {% if request.user|user_in_group:"Read_Write"%}
+            <a href="{% url 'IncidentInput' %}"><img src="{% static 'img/Incident.jpg' %}" class="card-img-top w-100 card-img" alt="Incident" style="padding: 10px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'IncidentInput' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Incident Tracker</a></h5> 
+            {% else %}  
+            <a href="{% url 'IncidentData' %}"><img src="{% static 'img/Incident.jpg' %}" class="card-img-top w-100 card-img" alt="Incident" style="padding: 10px; border: 1px grey;"></a>
+            <h5 class="card-title"><a href="{% url 'IncidentData' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Incident Tracker</a></h5> 
+            {% endif %}
+          </div>
+        </div>   
+
+       {% comment %} <div class="col-md-3 my-5 mx-auto" style="height: 100px;">
+          <div class="card shadow" style="width: 10rem;">
+            {% if request.user|user_in_group:"Read_Write"%}
+            <a href="{% url 'EnPI_Input' %}"><img src="{% static 'img/EnMS.jpg' %}"  class="card-img-top w-100 card-img" alt="EnMS" style="padding: 10px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'EnPI_Input' %}" style="text-decoration: none; color: rgb(69, 68, 68);">EnMS Tracker</a></h5>
+            {% else %}
+            <a href="{% url 'EnPI_View' %}"><img src="{% static 'img/EnMS.jpg' %}"  class="card-img-top w-100 card-img" alt="EnMS" style="padding: 10px; border: 1px grey;"></a>
+            <h5 class="card-title"><a href="{% url 'EnPI_View' %}" style="text-decoration: none; color: rgb(69, 68, 68);">EnMS Tracker</a></h5>
+            {% endif %}
+          </div>
+        </div> {% endcomment %}
+
+        <div class="col-md-3 my-5 mx-auto" style="height: 100px;">
+          <div class="card shadow" style="width: 10rem;">
+            {% if request.user|user_in_group:"Read_Write"%}
+            <a href="{% url 'WM_Routine_Input' %}"><img src="{% static 'img/WMP.jpg' %}" class="card-img-top card-img" alt="WMP" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'WM_Routine_Input' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Waste Management</a></h5>
+            {% else %} 
+            <a href="{% url 'Routine_View' %}"><img src="{% static 'img/WMP.jpg' %}" class="card-img-top card-img" alt="WMP" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'Routine_View' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Waste Management</a></h5>
+            {% endif %}
+          </div>
+        </div>   
+
+        <div class="col-md-3 my-5 mx-auto" style="height: 100px;">
+          <div class="card shadow" style="width: 10rem;">
+            {% if request.user|user_in_group:"Read_Write"%}
+            <a href="{% url 'OPEX_Upload' %}"><img src="{% static 'img/OPEX.png' %}" class="card-img-top card-img" alt="OPEX" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'OPEX_Upload' %}" style="text-decoration: none; color: rgb(69, 68, 68);">OPEX Tracker</a></h5>
+            {% else %}
+            <a href="{% url 'OpexView' %}"><img src="{% static 'img/OPEX.png' %}" class="card-img-top card-img" alt="OPEX" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'OpexView' %}" style="text-decoration: none; color: rgb(69, 68, 68);">OPEX Tracker</a></h5>
+            {% endif %}
+          </div>
+        </div>  
+      </div>
+
+      <div class="container row justify-content-around">
+ 
+
+        <div class="col-md-3 my-5 mx-auto" style="height: 100px;">
+          <div class="card shadow" style="width: 10rem;">
+            {% if request.user|user_in_group:"Read_Write"%}
+            <a href="{% url 'Invoice_Input' %}"><img src="{% static 'img/Invoice.jpg' %}" class="card-img-top card-img" alt="Invoice" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'Invoice_Input' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Invoice Tracker</a></h5>
+              {% else %}
+              <a href="{% url 'InvoiceView' %}"><img src="{% static 'img/Invoice.jpg' %}" class="card-img-top card-img" alt="Invoice" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'InvoiceView' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Invoice Tracker</a></h5>
+              {% endif %}
+          </div>
+        </div>   
+
+        <div class="col-md-3 my-5 mx-auto" style="height: 100px;">
+          <div class="card shadow" style="width: 10rem;">
+            {% if request.user|user_in_group:"Read_Write"%}
+            <a href="{% url 'Vendor_Input' %}"><img src="{% static 'img/Vendor.jpg' %}" class="card-img-top card-img" alt="Vendor" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'Vendor_Input' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Facility Vendors</a></h5>
+            {% else %}
+            <a href="{% url 'VendorView' %}"><img src="{% static 'img/Vendor.jpg' %}" class="card-img-top card-img" alt="Vendor" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'VendorView' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Facility Vendors</a></h5>
+            {% endif %}
+          </div>
+        </div>  
+
+        <div class="col-md-3 my-5 mx-auto" style="height: 100px;">
+          <div class="card shadow" style="width: 10rem;">
+            {% if request.user|user_in_group:"Admin-Leaders"%}
+            <a href="{% url 'Upload_Course' %}"><img src="{% static 'img/awareness.jpg' %}" class="card-img-top card-img" alt="Awareness" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'Upload_Course' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Awareness/ Training</a></h5>
+            {% else %}
+            <a href="{% url 'View_Courses' %}"><img src="{% static 'img/awareness.jpg' %}" class="card-img-top card-img" alt="Awareness" style="padding: 5px; border: 1px grey;"></a>
+              <h5 class="card-title"><a href="{% url 'View_Courses' %}" style="text-decoration: none; color: rgb(69, 68, 68);">Awareness/ Training</a></h5>
+            {% endif %}
+          </div>
+        </div>   
+      </div>
+    </div>
+</div>
+
+{% endblock %}

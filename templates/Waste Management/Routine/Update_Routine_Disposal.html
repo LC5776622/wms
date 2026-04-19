@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Waste Disposal Update{% endblock  %}
+
+{% block body %}
+
+<div class="container col-md-9 my-3">
+    <h4 class="shadow" style="padding: 5px; background-color: rgb(0, 100, 22); color: aliceblue;">Update Routine Waste Disposal Data</h4>
+    <div class="container shadow" style="text-align: center; background-color: rgb(247, 196, 167); padding: 5px; border: solid white 1px; ">
+        <b style="color: red;">Alert:</b> You are now updating <b>Routine Waste Disposal Record ID</b> <b style="color:red;"> RW/{{routine_data.id}}</b>. Kindly review & validate all details before submitting.
+    </div>
+    <div class="container shadow" style="padding: 5px; border: solid 1px lightgrey;">
+        <form class="form-group row g-3" action="{% url 'Update_Routine_Disposal' routine_data_id=routine_data.id %}" method="POST">
+            {% csrf_token %}
+            <div class="col-md-2">
+                <label for="recordID" class="form-label">Record ID</label>
+                <h5 style="background-color: bisque;" class="form-control"><b>RW/{{routine_data.id}}</b></h5>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="disposalDate">Disposal Date:</label>
+                <input class="form-control" name="disposalDate" id="disposalDate" type="date" value="{{routine_data.Disposal_Date}}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="Country">Country:</label>
+                <select id="Country" name="Country" class="form-select" required>
+                    {% if request.user|user_in_group:"Admin-Leaders"%}
+                    <option hidden selected value="{{routine_data.Country}}">{{routine_data.Country}}</option>
+                    {% for country in countries %}
+                    <option  value="{{country}}">{{country}}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="{{user_country}}">{{user_country}}</option>
+                    {% endif %}
+                  </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="Location">Location:</label>
+                <select class="form-select" name="Location" id="Location">
+                    {% if request.user|user_in_group:"Admin-Leaders"%}
+                    <option hidden selected value="{{routine_data.Location}}">{{routine_data.Location}}</option>
+                      {% else %}
+                    <option value="{{user_location}}">{{user_location}}</option>
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="Function">Function:</label>
+                <select class="form-select" name="Function" id="Function">
+                    <option hidden selected value="{{routine_data.Function}}">{{routine_data.Function}}</option>
+                    <option value="Facilities">Facilities</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Physical Security">Physical Security</option>
+                    <option value="TPO">TPO</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="itemDesc">Item Description:</label>
+                <input class="form-control" name="itemDesc" id="itemDesc" type="text" value="{{routine_data.Description}}">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="wasteType">Waste Type:</label>
+                <select class="form-select" name="wasteType" id="wasteType">
+                    <option hidden selected value="{{routine_data.Waste_Type}}">{{routine_data.Waste_Type}}</option>
+                    <option value="Dry Waste">Dry Waste</option>
+                    <option value="Wet Waste">Wet Waste</option>
+                    <option value="Plastic Waste">Plastic Waste</option>
+                    <option value="Bio-Medical Waste">Bio-Medical Waste</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="wasteState">Waste State:</label>
+                <select class="form-select" name="wasteState" id="wasteState">
+                    <option hidden selected value="{{routine_data.Waste_State}}">{{routine_data.Waste_State}}</option>
+                    <option value="Solid">Solid</option>
+                    <option value="Semi Liquid">Semi Liquid</option>
+                    <option value="Liquid">Liquid</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="Severity">Waste Severity:</label>
+                <select class="form-select" name="Severity" id="Severity">
+                    <option hidden selected value="{{routine_data.Severity}}">{{routine_data.Severity}}</option>
+                    <option value="Hazardous">Hazardous</option>
+                    <option value="Non-Hazardous">Non-Hazardous</option>
+                </select>
+            </div>
+
+
+            <div class="col-md-2">
+                <label class="form-label" for="disposalType">Disposal Type:</label>
+                <select class="form-select" name="disposalType" id="disposalType">
+                    <option hidden selected value="{{routine_data.Disposal_Type}}">{{routine_data.Disposal_Type}}</option>
+                    <option value="Recycle">Recycle</option>
+                    <option value="Scrap">Scrap</option>
+
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="Unit">Unit:</label>
+                <select class="form-select" name="Unit" id="Unit">
+                    <option hidden selected value="{{routine_data.Unit}}">{{routine_data.Unit}}</option>
+                    <option value="KG">KG</option>
+                    <option value="Liter">Liter</option>
+                    <option value="Count">Count</option>
+                    <option value="Meter">Meter</option>
+                    <option value="Lot">Lot</option>
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <label class="form-label" for="Quantity">Quantity:</label>
+                <input class="form-control" name="Quantity" id="Quantity" type="number" step="0.001" value="{{routine_data.Quantity}}">
+            </div>
+
+            
+            <div class="col-md-2">
+                <label class="form-label" for="disposedBy">Disposed By:</label>
+                <select class="form-select" name="disposedBy" id="disposedBy">
+                    <option hidden selected value="{{routine_data.Disposed_By}}">{{routine_data.Disposed_By}}</option>
+                    {% for user in UserFilter %}
+                    <option value="{{user}}">{{user}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" for="verifiedBy">Verified By:</label>
+                <select class="form-select" name="verifiedBy" id="verifiedBy">
+                    <option hidden selected value="{{routine_data.Verified_By}}">{{routine_data.Verified_By}}</option>
+                    {% for user in UserFilter %}
+                    <option value="{{user}}">{{user}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label" for="Remarks">Remarks:</label>
+                <input class="form-control" name="Remarks" id="Remarks" type="text" value="{{routine_data.Remarks}}">
+            </div>
+            <div class="col-md-6" style="text-align: left;">
+                <input class="btn btn-outline-primary btn-sm" type="submit" value="Update">
+            </div>
+            
+            <div class="col-md-6" style="text-align:right;">
+            <a class="btn btn-sm btn-warning" href="{% url 'Routine_View'%}">Cancel</a>
+          </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

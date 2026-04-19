@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Update Training Records{% endblock %}
+{% block body %}
+<div class="container col-10 shadow my-3" style="border: solid 1px lightgrey; padding: 10px;">
+    <h4>View Training Records</h4>
+    <div class="container-flex">
+        <table class="table table-sm table-borderless">
+            <thead>
+                <tr>
+                    <th>Country</th>
+                    <th>Location</th>
+                    <th>Subject</th>
+                    <th>Session Type</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{training_data.country}}</td>
+                    <td>{{training_data.location}}</td>
+                    {% for course in courses %}
+                    <td>{{course.course__title}}</td>
+                    {% endfor %}
+                    <td>{{training_data.session}}</td>
+                </tr>
+            </tbody>
+
+            <thead class="my-3">
+                <tr>
+
+                    <th>Training Frequency</th>
+                    <th>Planned Date</th>
+                    <th>Actual Date</th>
+                    <th>Conducted By</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>  
+                    <td>{{training_data.frequency}}</td>
+                    <td>{{training_data.planned_date}}</td>
+                    <td>{{training_data.actual_date}}</td>
+                    <td>{{training_data.conducted_by}}</td>
+                </tr>
+            </tbody>
+            <thead class="my-3">
+                <tr>
+                    <th>Session Agenda</th>  
+                    <th>Attendee Teams</th>
+                    <th colspan="2">Attendees' Names</th>
+
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr> 
+                    <td style="text-align:left;">
+                        {% for sentence in training_data.agenda|split_sentences %}
+                        {{ sentence }}{% if not forloop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{training_data.attendee_teams}}</td>
+                    <td colspan="2">{{training_data.attendees}}</td>
+                    
+
+                </tr>
+            </tbody>
+            <thead class="my-3">
+                <tr>  
+                    <th>Verifier EID</th>
+                    <th>Verfier Name</th>
+                    <th>Verify Date</th>
+                    <th>Verifier Remarks</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in courses %}
+                <tr> 
+                    <td>{% if data.verified_by__username == none %} - {% else %}{{data.verified_by__username}} {% endif %}</td>
+                    <td>{% if data.verified_by__username == none %} - {% else %} {{data.verified_by__last_name}}, {{data.verified_by__first_name}}{% endif %}</td>
+                    <td>{% if data.verified_by__username == none %} - {% else %}{{training_data.verified_date}} {% endif %}</td>
+                    <td>{% if data.verified_by__username == none %} - {% else %}{{training_data.verifier_remarks}} {% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            
+        </table>
+        <div class="container">
+            <h6><u>Attachments:</u></h6>
+            {% if training_data.attendence_sheet.url != none %}
+            <div class="col">
+            <a href="{{training_data.attendence_sheet.url}}" style="text-decoration: none; font-size: .9rem;" target="_blank">1. Attendence Sheet</a>
+            </div>
+            {% endif %}
+            {% if training_data.training_images.url != none %}
+            <div class="col">
+                <a href="{{training_data.training_images.url}}" style="text-decoration: none; font-size: .9rem;" target="_blank">2. Training Images</a>
+            </div>
+            {% endif %}
+        </div>
+        <div class="container my-3" style="text-align: center;">
+            <a class="btn btn-sm btn-warning" href="{% url 'Calendar_View' %}">Back</a>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock  %}

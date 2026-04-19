@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+<div class="container col-md-6 my-3" style="text-align: center;">
+    <div class="alert alert-danger" role="alert">
+        <img src="/static/img/duplicate.png" alt="Warning" height="36"> 
+        <h3>Duplicate Entry Warning!!!</h3>
+        <hr>
+            {% for data in reporturl %}
+            <p>It appears, report with title <b>{{data.report_name}} for {{data.location}} location(s) has already been published.</p>
+            <p>You Can View This Report At <b> <a href="{% url 'CustomReport_View'%}"></a>Power BI Reports</b> Under <b>Reports</b> Section.</p>
+            {% endfor %}
+    </div>
+    <br>
+    <p>Go Back To Custom Reports Upload Page</P>
+    <div class="col">
+        <a class="btn btn-sm btn-warning" href="{% url 'CustomReport_Input'%}" role="button">Go Back</a>
+    </div>
+</div>
+
+{% endblock %}

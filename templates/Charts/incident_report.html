@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %} Incident Report{% endblock %}
+{% block body %}
+<script src="{% static 'scripts/2.9.4/Chart.min.js' %}"></script>
+<!-- <script src="{% static 'scripts/2.9.4/chartjs-plugin-datalabels' %}"></script> -->
+<script src="{% static 'scripts/html2pdf.min.js' %}"></script>
+
+<div class="container my-3"style="text-align:center;">
+  <form class='form-group' method="GET" action="/incidentreport">
+    <div class="row">
+      <div class="col">
+        <label for="year">Year:</label>
+        <select id="year" name="year">
+          <option value="All">All</option>
+          {% for year in years %}
+          <option value="{{ year }}">{{ year }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col">
+        <label for="quarter">Quarter:</label>
+        <select id="quarter" name="quarter">
+          <option value="All">All</option>
+          {% for quarter in quarters %}
+          <option value="{{ quarter }}">Q{{quarter}}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col">
+        <label for="month">Month:</label>
+        <select id="month" name="month">
+          <option value="All">All</option>
+          {% for month in months %}
+          <option value="{{ month }}">{{month|get_month_name}}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col">
+        <label for="country">Country:</label>
+        <select id="country" name="country">
+          <option value="All">All</option>
+          {% for country in countries %}
+          <option value="{{ country }}">{{ country }}</option>
+          {% endfor %}
+        </select>
+      </div> 
+      
+      <div class="col">
+        <label for="location">Location:</label>
+        <select id="location" name="location">
+          <option value="All">All</option>
+          {% for location in locations %}
+          <option value="{{ location }}">{{ location }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="col">
+          <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+      </div>
+    </div>
+  </form>
+</div>
+{% if error_message %}
+<div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+  <img src="/static/img/info.png" alt="info" height="22">
+  <div class="container">
+    {{ error_message }}
+  </div>
+</div>
+
+  {% else %}
+
+<div class="container my-2 " style="text-align:center;" id="pdfElements">
+  <div style="background-color: #015B7E; color: white; padding-bottom:3px;" class="container row">
+    <h1>Facility Incident Report</h1>
+  </div>
+  <div class="container-fluid  my-2">
+      <div class="container-fluid row hide-row" id="pivot">
+        <h5>Incidents Count by Location & Month</h5>
+        {{pivot_table1|safe}}
+      </div>
+      <div class="container-fluid row">
+          <h5>Incidents Count by Month</h5>
+          <canvas id="month-chart" height="300%" ></canvas>
+      </div>
+  </div>   
+    
+  <div class="html2pdf__page-break"></div>
+
+  <div class="container-fluid row my-2">
+    <div class="col row hide-col" id="pivot">
+      <h5>Month-Wise Incidents by Category</h5>
+      {{pivot_table2 |safe}}
+    </div>
+    <div class="container-fluid row my-1">
+      {% comment %} <h5>Location-Wise Incidents by Category</h5> {% endcomment %}
+      <canvas id="category-chart" height="275%"></canvas>
+    </div>
+  </div>
+
+  
+  <div class="html2pdf__page-break"></div>
+
+  <div class="container-fluid row my-2">
+      <div class="col row hide-col" id="pivot">
+        <h5>Month-Wise Incidents by Severity</h5>
+        {{pivot_table4 |safe}}
+      </div>
+
+      <div class="container-fluid row my-2">
+          <canvas id="severity-chart" height="275%"></canvas>
+      </div>
+  </div>
+</div>
+
+<div class="container justify-content-center" style="text-align: center;">
+  <button class="btn btn-sm btn-success" type="button" onclick="pdfDownload()">Download PDF</button>
+</div>
+
+
+{% endif %}
+
+<script>
+    var ctx = document.getElementById('month-chart').getContext('2d');
+    var jsonData = JSON.parse('{{ month_chart|escapejs}}');
+    var labels = jsonData.map(item => item.month);
+    var values = jsonData.map(item => item.count);
+    var myChart = new Chart(ctx, {
+        type :'bar', data:{ labels:labels, datasets :[{label:'Incidents', data: values, backgroundColor:'#4BCD3E', borderColor : '#4BCD3E', borderWidth :1 }] },
+        options: { "hover": { "animationDuration": 0 }, "animation": {  "duration": 1,
+                "onComplete": function() {
+                  var chartInstance = this.chart,
+                    ctx = chartInstance.ctx;
+                  ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'bottom';
+                  this.data.datasets.forEach(function(dataset, i) {
+                    var meta = chartInstance.controller.getDatasetMeta(i);
+                    meta.data.forEach(function(bar, index) {
+                      var data = dataset.data[index];
+                      ctx.fillText(data, bar._model.x, bar._model.y - 5);
+                    });
+                  });
+                }
+              },
+            maintainAspectRatio: false, responsive :false,
+             scales: { yAxis: [{ ticks: { display:false, beginAtZero :true, } }]},
+            plugins: {legend :{ display :false },
+                datalabels :{ display:'auto', anchor :'end', align :'top', color : 'black',
+                    formatter : function(value, context) {return value;  },
+                    font :{ weight: 'bold' }
+
+                }
+            }
+        }
+    });
+</script>
+
+<script>
+  var ctx = document.getElementById('category-chart').getContext('2d');
+  var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var numericMonths = {{labels|safe}};
+  var labels = numericMonths.map(function(month){
+    return monthNames[month-1];
+  });
+
+  var datasets = {{category_chart|safe}};
+  var colors = [ '#4BCD3E', '#012834', '#3BCFF0', '#A18CDE'  ];
+  datasets.forEach(function(dataset, index){
+    dataset.backgroundColor = colors[index];
+  });
+
+  var data = {
+    labels : labels,
+    datasets: datasets,}
+
+  var myChart = new Chart(ctx, {
+    type :'bar',
+    data: data,
+    options :{ "hover": { "animationDuration": 0 }, "animation": {  "duration": 1,
+    "onComplete": function() {
+      var chartInstance = this.chart,
+        ctx = chartInstance.ctx;
+      ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      this.data.datasets.forEach(function(dataset, i) {
+        var meta = chartInstance.controller.getDatasetMeta(i);
+        meta.data.forEach(function(bar, index) {
+          var data = dataset.data[index];
+          ctx.fillText(data, bar._model.x, bar._model.y - 5);
+        });
+      });
+      }
+    },
+    maintainAspectRatio: false, responsive :false,
+    scales: { yAxis: [{ ticks: { display:false, beginAtZero :true, } }]},
+    plugins: {legend :{ display :false },
+        datalabels :{ display:'auto', anchor :'end', align :'top', color : 'black',
+            formatter : function(value, context) {return value;  },
+            font :{ weight: 'bold' }
+          }
+        }
+      }
+  });
+</script>
+
+
+{% comment %} Change To Location-Wise {% endcomment %}
+<script>
+  var ctx = document.getElementById('severity-chart').getContext('2d');
+  var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var labels = {{sev_labels|safe}};
+  {% comment %} var labels = numericMonths.map(function(month){
+    return monthNames[month-1];
+  }); {% endcomment %}
+
+  var datasets = {{severity_chart|safe}};
+  var colors = [ '#012834','#4BCD3E',  '#3BCFF0'];
+  datasets.forEach(function(dataset, index){
+    dataset.backgroundColor = colors[index];
+  });
+
+  var data = {
+    labels : labels,
+    datasets: datasets,}
+
+  var myChart = new Chart(ctx, {
+    type :'bar',
+    data: data,
+    options :{ "hover": { "animationDuration": 0 }, "animation": {  "duration": 1,
+    "onComplete": function() {
+      var chartInstance = this.chart,
+        ctx = chartInstance.ctx;
+      ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      this.data.datasets.forEach(function(dataset, i) {
+        var meta = chartInstance.controller.getDatasetMeta(i);
+        meta.data.forEach(function(bar, index) {
+          var data = dataset.data[index];
+          ctx.fillText(data, bar._model.x, bar._model.y - 5);
+        });
+      });
+      }
+    },
+    maintainAspectRatio: false, responsive :false,
+    scales: { yAxis: [{ ticks: { display:false, beginAtZero :true, } }]},
+    plugins: {legend :{ display :false },
+        datalabels :{ display:'auto', anchor :'end', align :'top', color : 'black',
+            formatter : function(value, context) {return value;  },
+            font :{ weight: 'bold' }
+          }
+        }
+      }
+  });
+</script>
+
+<script>
+  function pdfDownload(){
+    var pdfElements = document.getElementById("pdfElements")
+    html2pdf(pdfElements, {
+    margin: 5,
+    filename: 'Incident_Report.pdf',
+    image : {type:'jpeg', quality: 0.98},
+    html2canvas : {scale:2, logging:true, dpi: 240, letterRendering: true},
+    jsPDF : {unit:'mm', format :'legal', orientation: 'landscape'}
+  });
+  };
+</script>
+
+<script>
+  function loadFilters() {
+    const filters = ['year', 'quarter', 'month', 'location', 'country'];
+    filters.forEach(filter => {
+      const savedValue = localStorage.getItem(filter);
+      if (savedValue) {
+        document.getElementById(filter).value = savedValue;
+      }
+    });
+  }
+  const filterElements = document.querySelectorAll('select');
+  filterElements.forEach(filterElement => {
+    filterElement.addEventListener('change', function(){
+      localStorage.setItem(this.id, this.value);
+    });
+  });
+  window.addEventListener('DOMContentLoaded', loadFilters)
+</script>
+
+{% endblock %}
+

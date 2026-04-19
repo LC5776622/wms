@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{%load custom_filters%}
+{% block title %}Update MBR Data {% endblock%}
+{% block body %}
+  <div class="container col-md-9 my-2 shadow" style="padding:3px; background-color:#F9F5F1;">
+    <h4>Update MBR Data</h4>
+  </div>
+  
+  <div class="container col-md-9 shadow" style="text-align: center; background-color: rgb(247, 196, 167); padding: 5px; border: solid white 1px; ">
+    <b style="color: red;">Alert:</b> You are now updating <b>MBR Record ID</b> <b style="color:red;"> {{mbr_data.id}}</b>. Kindly review & validate all details before submitting.
+  </div>
+
+  <div class="container col-md-9  my-2 shadow" style="padding:3px; background-color:#F9F5F1; padding:10px;">
+    <form class="row g-3" method="POST" action="{% url 'update_mbr_data' mbr_data_id=mbr_data.id %}">
+      {% csrf_token %}
+      <div class="col-md-3">
+        <label for="inputMonth" class="form-label">Record ID</label>
+        <h5 style="background-color: bisque;" class="form-control"><b>{{mbr_data.id}}</b></h5>
+      </div>
+
+      <div class="col-md-3">
+        <label for="inputMonth" class="form-label">Month</label>
+        <input type="Month" class="form-control" name="inputMonth" id="inputMonth" value="{{mbr_data.ReportMonth}}" required>
+      </div>
+
+      <div class="col-md-3">
+        <label for="Country" class="form-label">Country</label>
+        <select id="Country" name="inputCountry" class="form-select" required>
+          <option hidden selected value="{{mbr_data.ReportCountry}}">{{mbr_data.ReportCountry}}</option>
+          {% if request.user|user_in_group:"Admin-Leaders"%}
+          {% for country in countries %}
+          <option  value="{{country}}">{{country}}</option>
+          {% endfor %}
+          {% else %}
+          <option value="{{user_country}}">{{user_country}}</option>
+          {% endif %}
+        </select>
+      </div>
+      
+      <div class="col-md-3">
+        <label for="Location" class="form-label">Location</label>
+        <select id="Location" name="inputLocation" class="form-select" required>
+          {% if request.user|user_in_group:"Admin-Leaders"%}
+          <option hidden selected value="{{mbr_data.ReportLocation}}">{{mbr_data.ReportLocation}}</option>
+          {% else %}
+          <option value="{{user_location}}">{{user_location}}</option>
+          {% endif %}
+        </select>
+      </div>
+        <hr>
+      <div class="col-md-3">
+          <label for="AreaSQFT" class="form-label">Area (SQFT)</label>
+          <input type="number" class="form-control" name="AreaSQFT" id="AreaSQFT" value="{{mbr_data.AreaSQFT}}" required>
+      </div>
+      
+      <div class="col-md-3">
+          <label for="TotalSeats" class="form-label">Total Seats</label>
+          <input type="number" class="form-control" name="TotalSeats" id="TotalSeats" value="{{mbr_data.TotalSeats}}" required>
+      </div>
+
+      <div class="col-md-3">
+          <label for="Headcount" class="form-label">Headcount</label>
+          <input type="number" class="form-control" name="Headcount" id="Headcount" value="{{mbr_data.Headcount}}" required>
+      </div>
+
+      <div class="col-md-3">
+          <label for="OccupiedSeats" class="form-label">Occupied Seats</label>
+          <input type="number" class="form-control" name="OccupiedSeats" id="OccupiedSeats" value="{{mbr_data.OccupiedSeats}}" required>
+      </div>
+
+        <hr>
+      <div class="col-md-3">
+          <label for="Laptop" class="form-label">Laptop</label>
+          <input type="number" class="form-control" name="Laptop" id="Laptop" value="{{mbr_data.Laptop}}" required>
+      </div>
+      <div class="col-md-3">
+          <label for="Desktop" class="form-label">Desktop</label>
+          <input type="number" class="form-control" name="Desktop" id="Desktop" value="{{mbr_data.Desktop}}" required>
+      </div>
+      <div class="col-md-3">
+          <label for="Dongle" class="form-label">Dongle</label>
+          <input type="number" class="form-control" name="Dongle" id="Dongle"value="{{mbr_data.Dongle}}" required>
+      </div>
+      <div class="col-md-3">
+          <label for="Accessories" class="form-label">Accessories</label>
+          <input type="number" class="form-control" name="Accessories" id="Accessories" value="{{mbr_data.Accessories}}" required>
+      </div>
+
+        <hr>
+      <div class="col-md-6">
+          <label for="Completed" class="form-label">Completed Project/Task</label>
+          <textarea type="text" class="form-control" name="Completed" id="Completed" value="{{mbr_data.Work_Completed}}">{{mbr_data.Work_Completed}}</textarea>
+      </div>
+
+      <div class="col-md-6">
+          <label for="WIP" class="form-label">Work In Progress</label>
+          <textarea type="text" class="form-control" name="WIP" id="WIP" value="{{mbr_data.Work_In_Progress}}">{{mbr_data.Work_In_Progress}}</textarea>
+      </div>
+      <b style="color:red;">***Please Leave The Updates Field Blank If There Are No Update Under Any Category For The Month.</b>
+      <div class="col-md-6" style="text-align:left;">
+          <input type="submit" class="btn btn-sm btn-outline-primary" value="Update">
+      </div>
+      <div class="col-md-6" style="text-align:right;">
+          <a class="btn btn-sm btn-warning" href="{% url 'SpaceData'%}">Cancel</a>
+      </div>
+
+    </form> 
+  </div>
+
+{% endblock  %}
+
+

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{%load custom_filters%}
+{% block title %} USD Rate Input{% endblock title %}
+
+{% block body %}
+
+<div class="container my-3" style="text-align:center;">
+  <div class="btn-group">
+          <a href="{% url 'OPEX_Input'%}" class="btn btn-sm btn-outline-dark" aria-current="page">OPEX Data Upload</a>
+          {% if request.user|user_in_group:"Site-Admin"%}
+          <a href="{% url 'GL_Input' %}" class="btn btn-sm btn-outline-dark">Expense Categories</a>
+          {% endif %}
+          <a href="{% url 'Forex_Input' %}" class="btn btn-sm btn-outline-dark active">USD Rate</a>
+  </div>
+</div>
+
+
+  <div class="container col-md-6 my-3 shadow" style="padding: 10px;">
+    <h4>USD Rate Input</h4>
+
+    <form class="row g-3" method="POST" action="/forex_input">
+      {% csrf_token %}
+      <div class="container row my-3 g-3">
+          <div class="col-md-6">
+            <label class="form-label" for="country">Country:</label>
+            <select class="form-select" name="country" id="Country" required>
+              <option hidden selected value="">--Country--</option>
+              {% if request.user|user_in_group:"Admin-Leaders" %}
+              {% for country in countries %}
+              <option value="{{country}}">{{country}}</option>
+              {% endfor %}
+              {% else %}
+              <option value="{{user_country}}">{{user_country}}</option>
+              {% endif %}
+          </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="currency">Local Currency:</label>
+            <select class="form-select" name="currency" id="currency" required>
+              <option hidden selected value="">--Local Currency--</option>
+              {% if request.user|user_in_group:"Admin-Leaders" %}
+              {% for currency in currencies %}
+              <option value="{{currency}}">{{currency}}</option>
+              {% endfor %}
+              {% else %}
+              <option value="{{user_currency}}">{{user_currency}}</option>
+              {% endif %}
+          </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="year" >Year</label>
+            {% comment %} <input class="form-control" type="month" name="year" id="year" maxlength="4" min="2000" max="3000"> {% endcomment %}
+            <select class="form-select" name="year" id="year" required>
+              <option hidden selected value="">--Year--</option>
+              {% if request.user|user_in_group:"Admin-Leaders" %}
+              {% for year in year_range %}
+              <option value="{{year}}">{{year}}</option>
+              {% endfor %}
+              {% else %}
+              <option value="{{current_year}}">{{current_year}}</option>
+              {% endif %}
+          </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="usd_rate" >USD Conversion Rate</label>
+            <input class="form-control" type="number" name="usd_rate" id="usd_rate"  step="0.01">
+          </div>
+
+      </div>
+      <div class="col-12 my-3">
+        <input type="submit" class="btn btn-sm btn-outline-dark">
+      </div>
+    </form>
+
+
+      {% if success_message %}
+    <div class="container-fluid  alert alert-success" role="alert" style="text-align:center;">
+      {{success_message}}
+    </div>
+    {% elif error_message %}
+    <div class="container-fluid alert alert-danger" role="alert" style="text-align:center;">
+      {{error_message}}
+    </div>
+      {% endif %}
+  </div>
+
+<script src="/static/scripts/noSpace.js"></script>
+{% endblock %}
+

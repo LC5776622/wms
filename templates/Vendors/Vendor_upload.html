@@ -1,0 +1,31 @@
+{%load custom_filters%}
+<div class="container col-md-5 my-3 shadow" style="text-align:center; padding:5px;">
+  <div class="container my-6">
+            <div class="container" style=" text-align:center;">
+              <h4>Upload Vendor Details</h4>
+              <br>
+              <form method="post" action="/vendorupload" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="form-group container col-md-9">
+                      <label for="vendorfile" class="form-label">Select Vendor Details File To Upload:</label>
+                      <input class="form-control" style="color: red;" type="file" name="vendorfile" id="vendorfile" required>
+                  </div>
+                  <div class="container col-12 my-3">       
+                    <button type="submit" class="btn btn-sm btn-outline-dark">Upload</button>
+                  </div>
+              </form>
+              {% if success_message %}
+              <div class="alert alert-success" role="alert">
+                  {{success_message}}
+              </div>
+              {% elif error_message %}
+              <div class="alert alert-warning" role="alert">
+                  <b>Warning!</b> {{error_message}}
+              </div>
+              {% endif %}
+              <div class="form-group container-flex" style="text-align: right;">
+                  <a href="static/samples/Vendor_Input_Sample.xlsx">Sample File</a>
+              </div>
+            </div>
+  </div>
+</div>

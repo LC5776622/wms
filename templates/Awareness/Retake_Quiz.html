@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Quiz{% endblock  %}
+{% block body %}
+<div class="container col-md-9 my-3">
+
+    {% if error_message %}
+    <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+        <img src="/static/img/info.png" alt="info" height="22">
+        <div class="container">
+            {{ error_message }}
+        </div>
+    </div>
+    {% else %}
+
+    <form class='form-group my-3' action="{% url 'Retake_Quiz' course_id=course.id %}" method="POST">
+        {% csrf_token %}
+
+        <div class="container">    
+            <h4>Course Name: {{course.title}}</h4>
+            <input type="hidden" name="course_name" value="{{course.title}}">
+        </div>
+        <hr>
+        <div class="container row">
+            <div class="col-md-6">
+                <label for="userid">User ID: </label>{{request.user.username}}
+                <input type="hidden" name="userid" id="userid" value="{{request.user.username}}">
+            </div>
+            <div class="col-md-6" style="text-align: right;">
+            <label for="user_name">User Name: </label>{{request.user.last_name}}, {{request.user.first_name}}
+            <input type="hidden" name="user_name" id="user_name" value="{{request.user.last_name}}, {{request.user.first_name}}">
+            </div>
+        </div>
+        <hr>
+        <h6>Please select correct option for each of the given question. Minimum 8 correct answers are required to pass the test.</h6> 
+        <div class="container my-5 g-3" style="text-align: left; vertical-align: middle;">
+            {% for question in questions %}
+            <h6>Q {{forloop.counter}}. {{question.question_text}}</h6>
+
+            <div class="container my-3" style="text-align: left;vertical-align: middle;">
+                <div class="container my-2" >
+                    A. <input type="radio" name="question_{{question.id}}" id="" value="{{question.option1}}"> {{question.option1}}
+                </div>
+                <div class="container my-2" >
+                    B. <input type="radio" name="question_{{question.id}}" id="" value="{{question.option2}}"> {{question.option2}}
+                </div>
+                {% if question.option3 %}
+                <div class="container my-2" >
+                    C. <input type="radio" name="question_{{question.id}}" id="" value="{{question.option3}}"> {{question.option3}}
+                </div>
+
+                
+                <div class="container my-2" >
+                    D. <input type="radio" name="question_{{question.id}}" id="" value="{{question.option4}}"> {{question.option4}}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="container col-11 my-5" style="text-align: center;">
+            <button class="btn btn-sm btn-outline-dark" type="submit" value="Submit">Submit</button>
+        </div>
+    </form>
+    {% endif %}
+</div>
+<br>
+{% endblock %}

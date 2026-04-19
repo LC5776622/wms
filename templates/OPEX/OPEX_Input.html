@@ -1,0 +1,63 @@
+{% block body %}
+{% load custom_filters %}
+<div class="container col-md-6 my-5 shadow" style="text-align:center;">
+  <h4>OPEX Data Input</h4>
+  <form class="row g-3" method="POST" action="/opexinput">
+    {% csrf_token %}
+      <table class="table table-sm table-borderless" id="myTable">             
+            <tbody class="form-group">
+              <tr><th>Month</th><td><input type="month" id="OpexMonth" class="form-control" name="OpexMonth" required></td></tr>
+              <tr><th>Country</th><td><select class="form-select" name="OpexCountry" id="Country" required>
+                  <option hidden selected value="">--Select Country--</option>
+                  {% if request.user|user_in_group:"Admin-Leaders" %}
+                  {% for country in countries %}
+                  <option value="{{country}}">{{country}}</option>
+                  {% endfor %}
+                  {% else %}
+                  <option value="{{user_country}}">{{user_country}}</option>
+                  {% endif %}
+              </select></td>
+              </tr>
+                <tr><th>Location</th><td><select class="form-select" name="OpexLocation" id="Location" required>
+                  {% if request.user|user_in_group:"Admin-Leaders" %}
+                  <option hidden selected value="">--Select Location--</option>
+                  {% else %}
+                  <option value="{{user_location}}">{{user_location}}</option>
+                  {% endif %}
+              </select></td></tr>
+                <tr><th>Entity</th><td><select class="form-select" name="OpexEntity" id="Entity" required>
+                  <option hidden selected value="">--Select Entity--</option>
+                  {% if request.user|user_in_group:"Admin-Leaders" %}  
+                  {% for entity in entities %}
+                  <option value="{{entity}}">{{entity}}</option>
+                  {% endfor %}
+                  {% else %}
+                  {% for entity in location_entity %}
+                  <option value="{{entity}}">{{entity}}</option>
+                  {% endfor %}
+                  {% endif %}
+              </select></td></tr>
+                <tr><th>BUC</th><td><input type="text" class="form-control" name="BUC" onkeypress="CheckSpace(event)" required></td></tr>
+                <tr><th>GL Code</th><td><input type="number" class="form-control" name="GL_Code" onkeypress="CheckSpace(event)"></td></tr>
+                <tr><th>GL Name</th><td><input type="text" class="form-control" name="GL_Name" required></td></tr>
+                <tr><th>GL Description</th><td><input type="text" class="form-control" name="Description" required></td></tr>
+                <tr><th>Currency</th><td><input type="text" class="form-control" name="Currency"onkeypress="CheckSpace(event)"></td></tr>
+                <tr><th>Plan</th><td><input type="number" class="form-control" name="Plan"onkeypress="CheckSpace(event)"></td></tr>
+            </tbody>
+      </table>
+      <div class="col-12 my-3">
+        <input type="submit" class="btn btn-sm btn-outline-dark">
+      </div>
+  </form>
+
+
+    {% if success_message %}
+  <div class="container col-md-9 alert alert-success" role="alert" style="text-align:center;">
+    {{success_message}}
+  </div>
+    {% endif %}
+</div>
+
+<script src="/static/scripts/noSpace.js"></script>
+{% endblock %}
+

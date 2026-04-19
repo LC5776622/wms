@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+
+<style>
+  thead{
+      background-color:#4BCD3E;
+      color:white;
+  }
+
+ td, th{
+      border: 1px solid white;
+      text-align: center;
+  }
+
+  tbody>tr:nth-child(odd){
+      background-color: #D0EDCE;
+  }
+  tbody>tr:nth-child(even){
+      background-color: #E9F6E8;
+  }
+  
+</style>
+<div class="container-fluid my-3" style="text-align: center;">
+
+  <div class="alert alert-warning align-items-center my-3" role="alert">
+        <h4 style="color:rgb(99, 4, 4);"> <img src="/static/img/duplicate-list.png" alt="Alert" height="36"> Uploaded With Exclusion!!!</h4>
+        <h6>Following records were excluded from upload as these are either duplicate entries in excel file or this data is already present in database:</h6>
+  </div>
+        
+  <table class="table table-borderless table-sm" style="font-size:small" id="toExcel">
+    <thead>
+        <tr>
+          <th>Month</th>
+          <th>Location</th>
+            <th id="no-display">BU</th>
+            <th>GL</th>
+            <th>GL Name</th>
+            <th>Head</th>
+            <th>Currency</th>
+            <th>Plan</th>
+            <th>Forecast</th>
+            <th>Accrual</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in dataset3 %}
+            <tr>
+                <td>{{ data.OPEX_Month|get_month_name }}-{{ data.OPEX_Year }}</td>
+                <td>{{ data.OPEX_Location }}</td>
+                <td id="no-display">{{ data.BU }}</td>
+                <td>{{ data.GL_Code}}</td>
+                <td>{{ data.GL_Name }}</td>
+                <td>{{ data.GL_Desc }}</td>
+                <td>{{ data.Currency }}</td>
+                <td>{{ data.Plan }}</td>
+                <td>{{ data.Forecast }}</td>
+                <td>{{ data.Accrual }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+
+  <div class="container my-3" style="text-align:center; vertical-align: middle;">
+    <button class="btn btn-sm btn-primary my-2" onclick="exceller()">Download To Excel</button>
+    <div class="container my-2">
+      <h6>or</h6>
+      <a class="btn btn-sm btn-warning" href="{% url 'OPEX_Upload'%}" role="button">Go Back</a> To OPEX Data Input Page.
+    </div>  
+  </div>
+</div>
+
+      {% endblock body %}

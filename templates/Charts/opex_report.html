@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+{% load static %}
+{%load custom_filters%}
+{% block title %}OPEX Report{% endblock%}
+{% block body %}
+<script src="{% static 'scripts/2.9.4/Chart.min.js' %}"></script>
+
+<style>
+    #pivot>table>tbody>tr>td, #pivot>table>thead>tr>th, #pivot>table>tbody>tr>th{font-size: small;}
+    #YoY>table>tbody>tr>td, #YoY>table>thead>tr>th {font-size:small;}
+    .heading{background-color: #015B7E;color: white;padding-bottom: 5px;}
+</style>
+
+<div class="container-flex my-2" style="text-align:center;" >
+    <form class='form-group row' method="get" action="/opexreport">
+        <div class="col">
+              <label for="year">Year</label>
+              <select id="year" name="year">
+                  <option selected value="All">--All--</option>
+                  {% for year in years %}
+                  <option value="{{ year }}">{{ year }}</option>
+                  {% endfor %}
+              </select>
+        </div>
+        <div class="col">
+              <label for="quarter">Quarter</label>
+              <select id="quarter" name="quarter">
+                  <option selected value="All">--All--</option>
+                  {% for quarter in quarters %}
+                  <option value="{{ quarter }}">Q{{quarter }}</option>
+                  {% endfor %}
+              </select>
+        </div>
+        <div class="col">
+              <label for="month">Month</label>
+              <select id="month" name="month">
+                  <option selected value="All">--All--</option>
+                  {% for month in months %}
+                  <option value="{{ month }}">{{month|get_month_name }}</option>
+                  {% endfor %}
+              </select>
+        </div>
+        <div class="col">
+                <label for="country">Country</label>
+                <select id="country" name="country">
+                    <option selected value="All">--All--</option>
+                    {% for country in countries %}
+                    <option value="{{ country }}">{{ country }}</option>
+                    {% endfor %}
+                </select>
+              </div>
+
+        <div class="col">
+              <label for="location">Location</label>
+              <select id="location" name="location">
+                  <option selected value="All">--All--</option>
+                  {% for location in locations %}
+                  <option value="{{ location }}">{{ location }}</option>
+                  {% endfor %}
+              </select>
+        </div>
+        <div class="col">
+              <label for="currency">Currency</label>
+              <select id="currency" name="currency">
+                  <option value="Local">Local</option>
+                  <option value="USD">USD</option>
+              </select>  
+        </div>
+        <div class="col-md-1">
+              <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+        </div>
+    </form>
+
+    {% if error_message %}
+    <div class="container col-md-3 alert alert-primary d-flex my-5" role="alert">
+        <img src="/static/img/info.png" alt="info" height="22">
+        <div class="container">
+            {{ error_message }}
+        </div>
+    </div>
+</div>
+    {% else %}
+<div class="container my-2" id="pdfElements">
+    <div class="container-flex row heading my-3">
+        <h1>Operational Expense Dashboard</h1>
+    </div>  
+    <div class="container-flex row my-3">
+        <h5> 5 Years' Accrual Amount Comparision by Expense Categories</h5>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>{{year1}}</th>
+                    <th>{{year2}}</th>
+                    <th>{{year3}}</th>
+                    <th>{{year4}}</th>
+                    <th>{{year5}}</th>
+                    <th style="background-color:#015B7E"> {{year1}} vs {{year2}}</th>
+                    <th style="background-color:#015B7E"> {{year2}} vs {{year3}}</th>
+                    <th style="background-color:#015B7E"> {{year3}} vs {{year4}}</th>
+                    <th style="background-color:#015B7E"> {{year4}} vs {{year5}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in yearly_data_accrual %}
+                <tr>
+                    <th style="text-align:left; padding-left: 5px;">{{category.Expense_Category}}</th>
+                    
+                    <td>{% if currency == 'USD' %}$ {{category.year1|floatformat:2}} {% else %} {{category.year1|floatformat:2}} {% endif %}</td>
+                    <td>{% if currency == 'USD' %}$ {{category.year2|floatformat:2}} {% else %} {{category.year2|floatformat:2}} {% endif %}</td>
+                    <td>{% if currency == 'USD' %}$ {{category.year3|floatformat:2}} {% else %} {{category.year3|floatformat:2}} {% endif %}</td>
+                    <td>{% if currency == 'USD' %}$ {{category.year4|floatformat:2}} {% else %} {{category.year4|floatformat:2}} {% endif %}</td>
+                    <td>{% if currency == 'USD' %}$ {{category.year5|floatformat:2}} {% else %} {{category.year5|floatformat:2}} {% endif %}</td>
+                    <td {% if category.percentage_diff_year2 != none  %} style="text-align: left; padding-left: 15px;" {% endif %}> {% if category.percentage_diff_year2 == none  %} - {% elif category.percentage_diff_year2 < 0 %} <img src="{% static 'img/downGreen.png' %}" height="15" style="padding-right-10px" alt="Down"> {{category.percentage_diff_year2|floatformat:2}}% {% elif category.percentage_diff_year2 > 0 %}<img src="{% static 'img/upRed.png' %}" style="padding-right:5px;" height="15" alt="Up"> {{category.percentage_diff_year2|floatformat:2}}% {% else %} <img src="{% static 'img/noChangeYellow.png' %}" style="padding-right:5px;" height="8" alt="NoChange"> {{category.percentage_diff_year2|floatformat:2}}% {% endif %}</td>
+                    <td {% if category.percentage_diff_year3 != none  %} style="text-align: left; padding-left: 15px;" {% endif %}> {% if category.percentage_diff_year3 == none  %} - {% elif category.percentage_diff_year3 < 0 %} <img src="{% static 'img/downGreen.png' %}" height="15" style="padding-right-10px" alt="Down"> {{category.percentage_diff_year3|floatformat:2}}% {% elif category.percentage_diff_year3 > 0 %}<img src="{% static 'img/upRed.png' %}" style="padding-right:5px;" height="15" alt="Up"> {{category.percentage_diff_year3|floatformat:2}}% {% else %} <img src="{% static 'img/noChangeYellow.png' %}" style="padding-right:5px;" height="8" alt="NoChange"> {{category.percentage_diff_year3|floatformat:2}}% {% endif %}</td>
+                    <td {% if category.percentage_diff_year4 != none  %} style="text-align: left; padding-left: 15px;" {% endif %}> {% if category.percentage_diff_year4 == none  %} - {% elif category.percentage_diff_year4 < 0 %} <img src="{% static 'img/downGreen.png' %}" height="15" style="padding-right-10px" alt="Down"> {{category.percentage_diff_year4|floatformat:2}}% {% elif category.percentage_diff_year4 > 0 %}<img src="{% static 'img/upRed.png' %}" style="padding-right:5px;" height="15" alt="Up"> {{category.percentage_diff_year4|floatformat:2}}% {% else %} <img src="{% static 'img/noChangeYellow.png' %}" style="padding-right:5px;" height="8" alt="NoChange"> {{category.percentage_diff_year4|floatformat:2}}% {% endif %}</td>
+                    <td {% if category.percentage_diff_year5 != none  %} style="text-align: left; padding-left: 15px;" {% endif %}> {% if category.percentage_diff_year5 == none  %} - {% elif category.percentage_diff_year5 < 0 %} <img src="{% static 'img/downGreen.png' %}" height="15" style="padding-right-10px" alt="Down"> {{category.percentage_diff_year5|floatformat:2}}% {% elif category.percentage_diff_year5 > 0 %}<img src="{% static 'img/upRed.png' %}" style="padding-right:5px;" height="15" alt="Up"> {{category.percentage_diff_year5|floatformat:2}}% {% else %} <img src="{% static 'img/noChangeYellow.png' %}" style="padding-right:5px;" height="8" alt="NoChange"> {{category.percentage_diff_year5|floatformat:2}}% {% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container-flex row my-3">
+      <h5> 5 Years' Plan Amount Comparision by Expense Categories</h5>
+      <table>
+          <thead>
+              <tr>
+                  <th>Category</th>
+                  <th>{{year1}}</th>
+                  <th>{{year2}}</th>
+                  <th>{{year3}}</th>
+                  <th>{{year4}}</th>
+                  <th>{{year5}}</th>
+                  <th style="background-color:#015B7E"> {{year1}} vs {{year2}}</th>
+                  <th style="background-color:#015B7E"> {{year2}} vs {{year3}}</th>
+                  <th style="background-color:#015B7E"> {{year3}} vs {{year4}}</th>
+                  <th style="background-color:#015B7E"> {{year4}} vs {{year5}}</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for category in yearly_data_plan %}
+              <tr>
+                  <th style="text-align:left; padding-left: 5px;">{{category.Expense_Category}}</th>
+                  
+                  <td>{% if currency == 'USD' %}$ {{category.year1|floatformat:2}} {% else %} {{category.year1|floatformat:2}} {% endif %}</td>
+                  <td>{% if currency == 'USD' %}$ {{category.year2|floatformat:2}} {% else %} {{category.year2|floatformat:2}} {% endif %}</td>
+                  <td>{% if currency == 'USD' %}$ {{category.year3|floatformat:2}} {% else %} {{category.year3|floatformat:2}} {% endif %}</td>
+                  <td>{% if currency == 'USD' %}$ {{category.year4|floatformat:2}} {% else %} {{category.year4|floatformat:2}} {% endif %}</td>
+                  <td>{% if currency == 'USD' %}$ {{category.year5|floatformat:2}} {% else %} {{category.year5|floatformat:2}} {% endif %}</td>
+                  <td {% if category.percentage_diff_year2 != none  %} style="text-align: left; padding-left: 15px;" {% endif %}> {% if category.percentage_diff_year2 == none  %} - {% elif category.percentage_diff_year2 < 0 %} <img src="{% static 'img/downGreen.png' %}" height="15" style="padding-right-10px" alt="Down"> {{category.percentage_diff_year2|floatformat:2}}% {% elif category.percentage_diff_year2 > 0 %}<img src="{% static 'img/upRed.png' %}" style="padding-right:5px;" height="15" alt="Up"> {{category.percentage_diff_year2|floatformat:2}}% {% else %} <img src="{% static 'img/noChangeYellow.png' %}" style="padding-right:5px;" height="8" alt="NoChange"> {{category.percentage_diff_year2|floatformat:2}}% {% endif %}</td>
+                  <td {% if category.percentage_diff_year3 != none  %} style="text-align: left; padding-left: 15px;" {% endif %}> {% if category.percentage_diff_year3 == none  %} - {% elif category.percentage_diff_year3 < 0 %} <img src="{% static 'img/downGreen.png' %}" height="15" style="padding-right-10px" alt="Down"> {{category.percentage_diff_year3|floatformat:2}}% {% elif category.percentage_diff_year3 > 0 %}<img src="{% static 'img/upRed.png' %}" style="padding-right:5px;" height="15" alt="Up"> {{category.percentage_diff_year3|floatformat:2}}% {% else %} <img src="{% static 'img/noChangeYellow.png' %}" style="padding-right:5px;" height="8" alt="NoChange"> {{category.percentage_diff_year3|floatformat:2}}% {% endif %}</td>
+                  <td {% if category.percentage_diff_year4 != none  %} style="text-align: left; padding-left: 15px;" {% endif %}> {% if category.percentage_diff_year4 == none  %} - {% elif category.percentage_diff_year4 < 0 %} <img src="{% static 'img/downGreen.png' %}" height="15" style="padding-right-10px" alt="Down"> {{category.percentage_diff_year4|floatformat:2}}% {% elif category.percentage_diff_year4 > 0 %}<img src="{% static 'img/upRed.png' %}" style="padding-right:5px;" height="15" alt="Up"> {{category.percentage_diff_year4|floatformat:2}}% {% else %} <img src="{% static 'img/noChangeYellow.png' %}" style="padding-right:5px;" height="8" alt="NoChange"> {{category.percentage_diff_year4|floatformat:2}}% {% endif %}</td>
+                  <td {% if category.percentage_diff_year5 != none  %} style="text-align: left; padding-left: 15px;" {% endif %}> {% if category.percentage_diff_year5 == none  %} - {% elif category.percentage_diff_year5 < 0 %} <img src="{% static 'img/downGreen.png' %}" height="15" style="padding-right-10px" alt="Down"> {{category.percentage_diff_year5|floatformat:2}}% {% elif category.percentage_diff_year5 > 0 %}<img src="{% static 'img/upRed.png' %}" style="padding-right:5px;" height="15" alt="Up"> {{category.percentage_diff_year5|floatformat:2}}% {% else %} <img src="{% static 'img/noChangeYellow.png' %}" style="padding-right:5px;" height="8" alt="NoChange"> {{category.percentage_diff_year5|floatformat:2}}% {% endif %}</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+
+
+    <div class="html2pdf__page-break"></div>
+
+    <div class="container-flex row">
+        <h5>Plan V/s Accrual Variance % by Expense Category</h5>
+        <canvas id="plan-vs-acc-chart" height="300%"></canvas>
+    </div>
+
+    <div class="container-flex row my-2 " id="pivot">
+        <h5>Plan V/s Accrual Variance Amount by Expense Categories</h5> 
+        {{pivot_table1 |safe}}
+    </div> 
+
+    <div id="pivot" class="container-flex row my-2 hide-row">
+      <h5>Plan V/s Accrual Variance % by Locations</h5>
+      {{pivot_table5|safe}}
+  </div>
+
+  <div class="html2pdf__page-break"></div>
+    {% comment %} <div class="container-flex row"> 
+        <h5>Plan V/s Forecast Variance % by Expense Category</h5>
+        <canvas id="plan-vs-fore-chart" height="300%"></canvas>
+    </div>
+    
+
+    <div class="container-flex row hide-row" id="pivot">
+        <h5>Plan V/s Forecast Variance Amount by Expense Category</h5>
+        {{pivot_table2 |safe}}
+    </div> {% endcomment %}
+    <div class="container-flex row"> 
+        <h5>Forecast Vs Accrual Variance % by Expense Category</h5>
+        <canvas id="fore-vs-accr-chart" height="275%"></canvas>
+    </div>
+
+    <div class="html2pdf__page-break"></div>
+
+    <div class="container-flex row my-3 hide-row" id="pivot">
+        <h5>Forecast Vs Accrual Variance Amount by Category</h5> 
+        {{pivot_table3 |safe}}
+    </div>
+
+    <div class="html2pdf__page-break"></div>
+
+    {% comment %} <div class="container-flex row my-3" id="YoY">
+        <h5>3 Years' Year-on-Year OPEX Comparision by Category</h5>
+        {{pivot_table4 |safe}}
+    </div> {% endcomment %}
+
+</div>
+
+<div class="container justify-content-center" style="text-align: center;">
+    <button class="btn btn-sm btn-success" type="button" onclick="pdfDownload()">Download PDF</button>
+</div>
+    {% endif %}
+
+<!-- Filter Script -->
+<script>
+    function loadFilters() {
+      const filters = ['year', 'quarter', 'month', 'location', 'currency', 'country'];
+      filters.forEach(filter => {
+        const savedValue = localStorage.getItem(filter);
+        if (savedValue) {
+          document.getElementById(filter).value = savedValue;
+        }
+      });
+    }
+    const filterElements = document.querySelectorAll('select');
+    filterElements.forEach(filterElement => {
+      filterElement.addEventListener('change', function(){
+        localStorage.setItem(this.id, this.value);
+      });
+    });
+    window.addEventListener('DOMContentLoaded', loadFilters)
+</script>
+
+<!-- Plan Vs Accraul -->
+<script>
+    var plan_vs_accr_data = JSON.parse('{{ plan_vs_accrual_data|safe }}');
+    
+    var plan_vs_acc_labels = plan_vs_accr_data.map(function(d) { return d.category; });
+    var plan_vs_acc_values = plan_vs_accr_data.map(function(d) { return d.percentage; });
+    
+  
+    var planVsAccChart = new Chart(document.getElementById('plan-vs-acc-chart'), { type: 'bar',
+            data: { labels: plan_vs_acc_labels,
+                datasets: [{label: 'Plan Vs Accrual ', data: plan_vs_acc_values, backgroundColor: '#4BCD3E', borderColor: '#4BCD3E', borderWidth: 1,}]},
+                options: {"hover": { "animationDuration": 0 },
+              "animation": {"duration": 1, "onComplete": function() {
+                  var chartInstance = this.chart,
+                    ctx = chartInstance.ctx;
+                  ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'bottom';
+          
+                  this.data.datasets.forEach(function(dataset, i) {
+                    var meta = chartInstance.controller.getDatasetMeta(i);
+                    meta.data.forEach(function(bar, index) {
+                      var data = dataset.data[index];
+                      ctx.fillText(data, bar._model.x, bar._model.y - 5);
+                    });
+                  });
+                }
+              }, 
+              scales: {yAxes: [{ ticks: { beginAtZero: true, callback: function(value) { return value + '%'; }}}]},
+                tooltips: {callbacks: {label: function(tooltipItem, data) {return data.datasets[0].label + ': ' + tooltipItem.yLabel.toFixed(2) + '%';}}}
+          }
+    });
+
+</script>
+
+{% comment %} <!-- Plan Vs Forecast -->
+<script>
+  var plan_vs_fore_data = JSON.parse('{{ plan_vs_fore_data|safe }}');
+
+  var plan_vs_fore_labels = plan_vs_fore_data.map(function(d) { return d.category; });
+  var plan_vs_fore_values = plan_vs_fore_data.map(function(d) { return d.percentage; });
+       
+  var planVsForeChart = new Chart(document.getElementById('plan-vs-fore-chart'), {type: 'bar',
+          data: {labels: plan_vs_fore_labels,
+              datasets: [{ label: 'Plan Vs Forecast', data: plan_vs_fore_values, backgroundColor: '#A18CDE', borderColor: '#A18CDE', borderWidth: 1}]},
+              options: { "hover": { "animationDuration": 0 },
+            "animation": { "duration": 1, "onComplete": function() {
+                var chartInstance = this.chart,
+                  ctx = chartInstance.ctx;
+        
+                ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+        
+                this.data.datasets.forEach(function(dataset, i) {
+                  var meta = chartInstance.controller.getDatasetMeta(i);
+                  meta.data.forEach(function(bar, index) {
+                    var data = dataset.data[index];
+                    ctx.fillText(data, bar._model.x, bar._model.y - 5);
+                  });
+                });
+              }
+            }, scales: { yAxes: [{ ticks: { beginAtZero: true, callback: function(value) { return value + '%';}}}]},
+              tooltips: { callbacks: { label: function(tooltipItem, data) { return data.datasets[0].label + ': ' + tooltipItem.yLabel.toFixed(2) + '%'; }}} 
+          }
+  });
+
+</script> {% endcomment %}
+
+<!-- Forecast Vs Accraul -->
+<script>
+  var fore_vs_accr_data = JSON.parse('{{ fore_vs_accr_data|safe }}');
+
+  var fore_vs_accr_labels = fore_vs_accr_data.map(function(d) { return d.category; });
+  var fore_vs_accr_values = fore_vs_accr_data.map(function(d) { return d.percentage; });
+
+  var foreVsAccrChart = new Chart(document.getElementById('fore-vs-accr-chart'), {type: 'bar',
+      data: {labels: fore_vs_accr_labels,
+          datasets: [{ label: 'Forecast Vs Accrual', data: fore_vs_accr_values, backgroundColor: '#012834', borderColor: '#012834', borderWidth: 1}]},
+          
+          options: { "hover": { "animationDuration": 0 },
+        "animation": { "duration": 1, "onComplete": function() {
+            var chartInstance = this.chart,
+              ctx = chartInstance.ctx;
+    
+            ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+    
+            this.data.datasets.forEach(function(dataset, i) {
+              var meta = chartInstance.controller.getDatasetMeta(i);
+              meta.data.forEach(function(bar, index) {
+                var data = dataset.data[index];
+                ctx.fillText(data, bar._model.x, bar._model.y - 5);
+              });
+            });
+          }
+        }, scales: { yAxes: [{ ticks: { beginAtZero: true, callback: function(value) { return value + '%';}}}]},
+          tooltips: { callbacks: { label: function(tooltipItem, data) { return data.datasets[0].label + ': ' + tooltipItem.yLabel.toFixed(2) + '%'; }}} 
+      }
+  });
+
+</script>
+
+<!-- PDF Downlaod -->
+<script src="{% static 'scripts/html2pdf.min.js' %}"></script>
+<script>
+    function pdfDownload(){
+      var pdfElements = document.getElementById("pdfElements")
+      html2pdf(pdfElements, {
+      margin: 5,
+      filename: 'OPEX_Report.pdf',
+      image : {type:'jpeg'},
+      html2canvas : {scale:2, logging:true, dpi: 192, letterRendering: true},
+      jsPDF : {unit:'mm', format :'legal', orientation: 'landscape'}
+    });
+    };
+</script>
+    {% endblock %}

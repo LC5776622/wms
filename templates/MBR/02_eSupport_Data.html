@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% block title %}Employee Support{% endblock%}
+{% block body %}
+
+<div class="container-fluid my-2" style="text-align:center;">    
+    <div class="btn-group">
+      <a href="{% url 'SpaceData' %}" class="btn btn-sm btn-outline-dark" >Space Data</a>
+      <a href="{% url 'eSupport' %}" class="btn btn-sm btn-outline-dark active">Employee Support</a>
+      <a href="{% url 'FacilityUpdates' %}" class="btn btn-sm btn-outline-dark" aria-current="page">Facility Updates</a>
+    </div>
+
+    <form class='form-group row my-3' method="get" action="/esupportdata">
+      <div class="container-fluid row">
+          <div class="col">
+              <label for="year">Year:</label>
+              <select id="year" name="year">
+                  <option value="All">All</option>
+                  {% for year in years %}
+                  <option value="{{ year }}">{{ year }}</option>
+                  {% endfor %}
+              </select>
+          </div>
+  
+          <div class="col">
+            <label for="quarter">Quarter:</label>
+            <select id="quarter" name="quarter">
+                <option value="All">All</option>
+                {% for quarter in quarters %}
+                <option value="{{ quarter }}">{{quarter}}</option>
+                {% endfor %}
+            </select>
+        </div>
+      
+          <div class="col">
+              <label for="month">Month:</label>
+              <select id="month" name="month">
+                  <option value="All">All</option>
+                  {% for month in months %}
+                  <option value="{{ month }}">{{month|convert_date_format }}</option>
+                  {% endfor %}
+              </select>
+          </div>
+  
+          <div class="col">
+            <label for="country">Country:</label>
+            <select id="country" name="country">
+                <option value="All">All</option>
+                {% for country in countries %}
+                <option value="{{ country }}">{{ country }}</option>
+                {% endfor %}
+            </select>
+        </div>
+  
+          <div class="col">
+              <label for="location">Location:</label>
+              <select id="location" name="location">
+                  <option value="All">All</option>
+                  {% for location in locations %}
+                  <option value="{{ location }}">{{ location }}</option>
+                  {% endfor %}
+              </select>
+          </div>
+  
+          <div class="col">
+              <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+          </div>
+      </div>
+    </form>
+
+  {% if error_message %}
+  <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+      <img src="/static/img/info.png" alt="info" height="22">
+      <div class="container">
+          {{ error_message }}
+      </div>
+  </div>
+  {% else %}
+  <div class="container my-2">
+    <h5>Assets Movement</h5>
+    <table class="table table-hover table-borderless table-sm" style="vertical-align: middle;">
+        <thead>
+          <tr>
+            <th scope="col">Record ID</th>
+            <th scope="col">Year</th>
+            <th scope="col">Quarter</th>
+            <th scope="col">Month</th>
+            <th scope="col">Country</th>
+            <th scope="col">Location</th>
+            <th scope="col">Laptop</th>
+            <th scope="col">Desktop</th>
+            <th scope="col">Dongle</th>
+            <th scope="col">Accessories</th>
+            <th scope="col">Total</th>
+            {% if request.user|user_in_group:"Admin-Managers"%}
+            <th colspan="2" scope="col">Action</th>
+            {% endif %}
+          
+          </tr>
+        </thead>
+
+        <tbody id="geeks">
+        {% for data in mbr_dataset %}
+        <tr>
+          <th scope="row">{{data.id}}</th>
+          <td scope="row">{{data.ReportYear}}</td>
+          <td scope="row">{{data.ReportQuarter}}</td>
+          <td scope="row">{{data.ReportMonth}}</td>
+          <td scope="row">{{data.ReportCountry}}</td>
+          <td scope="row">{{data.ReportLocation}}</td>
+          <td scope="row">{{data.Laptop}}</td>
+          <td scope="row">{{data.Desktop}}</td>
+          <td scope="row">{{data.Dongle}}</td>
+          <td scope="row">{{data.Accessories}}</td>
+          <th scope="row">{{data.Total_Assets}}</tdh>
+            {% if request.user|user_in_group:"Admin-Managers"%}
+          <td scope="row"><a type="button" class="btn btn-sm" href="{% url 'update_mbr_data' data.id %}">
+            <img src="/static/img/edit.png" alt="Edit" height="12"></a></td>
+        {% endif %}
+        {% if request.user|user_in_group:"Site-Admin"%}
+        <td><form action="{% url 'delete_mbr' data.id  %}" method="POST" id="delete-form">
+          {% csrf_token %} 
+        <button type="submit" onclick="return confirm('Are you sure you want to delete this item? Please note that deleted record cannot be restored.');" class="btn btn-sm" id="delete-btn">
+          <img src="/static/img/delete.png" alt="Delete" height="12"></button>
+      </form></td>
+      {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="container">
+      <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+    </div>
+  </div>
+  <!-- Downloadable Table -->
+  <div id="no-display">
+    <table id="toExcel">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Quarter</th>
+            <th>Month</th>
+            <th>Country</th>
+            <th>Location</th>
+            <th>Laptop</th>
+            <th>Desktop</th>
+            <th>Dongle</th>
+            <th>Accessories</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+
+        <tbody id="geeks">
+        {% for data in mbr_dataset %}
+        <tr>
+          <th>{{data.id}}</th>
+          <td>{{data.ReportYear}}</td>
+          <td>{{data.ReportQuarter}}</td>
+          <td>{{data.ReportMonth}}</td>
+          <td>{{data.ReportCountry}}</td>
+          <td>{{data.ReportLocation}}</td>
+          <td>{{data.Laptop}}</td>
+          <td>{{data.Desktop}}</td>
+          <td>{{data.Dongle}}</td>
+          <td>{{data.Accessories}}</td>
+          <th>{{data.Total_Assets}}</th>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="container">
+      <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+    </div>
+  </div>
+      {% endif %} 
+</div> 
+
+<script>
+  function loadFilters() {
+    const filters = ['year', 'quarter', 'month', 'location', 'country'];
+    filters.forEach(filter => {
+      const savedValue = localStorage.getItem(filter);
+      if (savedValue) {
+        document.getElementById(filter).value = savedValue;
+      }
+    });
+  }
+  const filterElements = document.querySelectorAll('select');
+  filterElements.forEach(filterElement => {
+    filterElement.addEventListener('change', function(){
+      localStorage.setItem(this.id, this.value);
+    });
+  });
+  window.addEventListener('DOMContentLoaded', loadFilters)
+</script>
+{% endblock %}
+

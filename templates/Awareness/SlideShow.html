@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Slide Show{% endblock %}
+{% block body %}
+
+<script src="{% static 'scripts/pdf.js/2.11.338/pdf.min.js' %}"></script>
+<script src="{% static 'scripts/pdf.js/2.11.338/pdf.worker.min.js' %}"></script>
+<div class="container-fluid my-2" id="pdf_container">
+    <div class="container" style="text-align:center;">
+        <canvas id="pdfCanvas"></canvas>
+    </div>
+    <div class="container-flex row my-1" style="text-align: center;">
+        <div class="col-md-4" style="text-align:center;">
+            <button class="btn btn-sm btn-outline-info" id="prevButton"><< Prev</button>
+        </div>
+        <div class="col-md-4" style="text-align:center;">
+            <div id="pageCount"><b>Page ... of ...</b></div>
+        </div>
+        <div class="col-md-4" style="text-align:center;">
+            <button  class="btn btn-sm btn-outline-info" id="nextButton">Next >></button>
+        </div>
+    </div>
+
+    <div class="container-fluid"  id="acknowledgeButton">
+        {% if uploaded_pdf.id not in acknowledged_courses and course.is_active %}
+        <div class="container col-md-9 my-3 g-3">
+            <form action="{% url 'Acknowledgement' course_id=course.id %}" method="POST">
+                {% csrf_token %}
+                <div class="container col-10">
+                  <h6>Rate This Presenation:</h6>
+                  <div class="container row">
+                    <div class="form-check col-md-2">
+                      <input class="form-check-input" type="radio" name="Rating" id="flexRadioDefault5" value="5" required><strong style="color: rgb(3, 167, 3);">Excellent</strong>
+                    </div>
+                    <div class="form-check col-md-2">
+                      <input class="form-check-input" type="radio" name="Rating" id="flexRadioDefault4" value="4" required><strong style="color: blue;">Good</strong>
+                    </div>
+                    <div class="form-check col-md-2">
+                      <input class="form-check-input" type="radio" name="Rating" id="flexRadioDefault3" value="3" required><strong >Average</strong>
+                    </div>
+                    <div class="form-check col-md-3">
+                      <input class="form-check-input" type="radio" name="Rating" id="flexRadioDefault2" value="2" required><strong style="color: orange;">Below Average</strong>
+                    </div>
+                    <div class="form-check col-md-3">
+                      <input class="form-check-input" type="radio" name="Rating" id="flexRadioDefault1" value="1" required><strong style="color: red;">Needs Improvement</strong>
+                    </div>
+                  </div>
+                  <div class="container my-3">
+                    <label class="form-label" for="feedback_suggestion">Feedback/ Suggestions:</label>
+                    <textarea class="form-control" name="feedback_suggestion" rows="4" id="feedback_suggestion"></textarea>
+                    <div class="my-5" style="font-size: .85rem; vertical-align: middle;">
+                        <h5><u>Acknowlegement</u></h5>
+                        <input type="checkbox" name="radio" style="margin-right: 10px;" required>  I, <b>{{request.user.last_name}}, {{ request.user.first_name}} ({{request.user.username}})</b>
+                       acknowledge that, I have read and understood the <b>{{course.title}}</b>
+                    </div>
+                    <div class="container my-3"  style="text-align: center;">
+                        <input class="btn btn-sm btn-outline-dark" type="submit"value="Submit">
+                    </div>
+                  </div>  
+                </div>
+            </form>
+        </div>
+        {% else %}
+    </div>
+    <hr>
+    {% if course.id in acknowledged_courses and course.is_active %}
+    <div class="container col-md-9 my-3" style="text-align:center">
+        <a class="btn btn-sm btn-outline-warning" href="{% url 'Retake_Quiz' course.id %}">Re-Take Quiz</a>
+    </div>
+    {% endif %}
+    {% endif %} 
+      
+</div>
+
+
+  <script>
+    var pdfURLs = ['{{uploaded_pdf.pdf_file.url}}',];
+    var currentPage = 1;
+    var totalPages = 0;
+    var pdfDocument = null;
+    var canvas = document.getElementById('pdfCanvas');
+    var ctx = canvas.getContext('2d');
+    var prevButton = document.getElementById('prevButton');
+    var nextButton = document.getElementById('nextButton');
+    var pageCount = document.getElementById('pageCount');
+    var acknowledgeButton = document.getElementById('acknowledgeButton');
+    
+    function updatePageCount() {
+      pageCount.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+    }
+    
+    function updateButtons() {
+      prevButton.disabled = currentPage <= 1;
+      nextButton.disabled = currentPage >= totalPages;
+      acknowledgeButton.style.display = currentPage === totalPages ? 'inline' : 'none';
+    }
+    
+    function renderPage(pageNumber) {
+      pdfDocument.getPage(pageNumber).then(function(page) {
+        var viewport = page.getViewport({ scale: 1.05 });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        
+        var renderContext = {
+          canvasContext: ctx,
+          viewport: viewport,
+        };
+        
+        page.render(renderContext);
+      });
+    }
+    
+    function loadPDF(url) {
+      pdfjsLib.getDocument(url).promise.then(function(pdfDoc) {
+        pdfDocument = pdfDoc;
+        totalPages = pdfDoc.numPages;
+        currentPage = 1;
+        updatePageCount();
+        updateButtons();
+        renderPage(currentPage);
+      });
+    }
+    
+    prevButton.addEventListener('click', function() {
+      if (currentPage > 1) {
+        currentPage--;
+        updatePageCount();
+        updateButtons();
+        renderPage(currentPage);
+      }
+    });
+    
+    nextButton.addEventListener('click', function() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        updatePageCount();
+        updateButtons();
+        renderPage(currentPage);
+      }
+    });
+    
+    // acknowledgeButton.addEventListener('click', function() {
+    //   // Handle acknowledge action
+    //   alert('Acknowledged!');
+    // });
+    
+    // Load the first PDF initially
+    if (pdfURLs.length > 0) {
+      loadPDF(pdfURLs[0]);
+    }
+  </script>
+
+
+
+{% endblock  %}

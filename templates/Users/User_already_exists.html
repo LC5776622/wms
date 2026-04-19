@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Duplicate Entry{% endblock title %}
+
+{% block body %}
+
+
+<style>
+    thead{
+        background-color:#4BCD3E;
+        color:white;
+    }
+  
+   td, th{
+        border: 1px solid white;
+        text-align: center;
+    }
+  
+    tbody>tr:nth-child(odd){
+        background-color: #D0EDCE;
+    }
+    tbody>tr:nth-child(even){
+        background-color: #E9F6E8;
+    }
+    
+  </style>
+<div class="container col-md-6 my-5" style="text-align: center;">
+
+    <div class="alert alert-warning align-items-center my-5" role="alert">
+        <img src="/static/img/duplicate-list.png" alt="Alert" height="36"> 
+        <h4 style="color:rgb(99, 4, 4);">Uploaded With Exclusion!!!</h4>
+        <h6>Following records were excluded from upload as these are either duplicate entries in excel file or this data is already present in database:</h6>
+    </div>
+
+    <table class="table table-hover table-striped table-sm" id="toExcel">
+        <thead>
+            <tr>
+                <th>Employee ID</th>
+                <th>Employee Name</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+              {% for data in auth_users %}
+            <tr>
+                <td>{{ data.userid }}</td>
+                <td>{{ data.user_name }}</td>
+                <td>{{ data.user_location }}</td>
+            </tr>
+              {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <div class="container" style="text-align:center;">
+        <button class="btn btn-sm btn-primary my-2" onclick="exceller()">Download To Excel</button>
+    </div>
+    <br>
+    
+    Go Back To Authorzed Users Upload Page.
+
+    <br><br>
+    <a class="btn btn-sm btn-warning" href="{% url 'AuthUser_Upload'%}" role="button">Go Back</a>
+</div>
+
+      {% endblock body %}

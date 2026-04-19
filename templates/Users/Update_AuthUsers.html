@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{%load custom_filters%}
+{% block title %}Update Authorized Users{% endblock%}
+{% block body %}
+    <div class="container col-md-6 my-2 shadow" style="text-align: center; padding:3px; background-color:#F9F5F1;">
+      <h4>Update Authorized Users Details</h4>
+    </div>
+    <div class="container col-md-6 shadow" style="text-align: center; background-color: rgb(247, 196, 167); padding: 5px; border: solid white 1px; ">
+      <b style="color: red;">Alert:</b> You are now updating <b>Users Record ID</b> <b style="color:red;"> {{auth_user.id}}</b>. Kindly review & validate all details before submitting.
+    </div>
+
+  <div class="container col-md-6  my-2 shadow" style="text-align: center; padding:3px; background-color:#F9F5F1; padding:10px;">
+    <form class="row g-3" method="POST" action="{% url 'AuthUser_Update' auth_user_id=auth_user.id %}">
+      {% csrf_token %}
+      <div class="col-md-4">
+        <label for="recordID" class="form-label">Record ID</label>
+        <h5 style="background-color: bisque;" class="form-control"><b>{{auth_user.id}}</b></h5>
+      </div>
+
+        <div class="col-md-4">
+          <label for="EID" class="form-label">Employee ID</label>
+          <input type="text" class="form-control" name="EID" id="EID" value="{{auth_user.userid}}" required>
+        </div>
+ 
+        <div class="col-md-4">
+          <label for="EmpName" class="form-label">Employee Name:</label>
+          <input type="text" class="form-control" name="EmpName" id="EmpName" value="{{auth_user.user_name}}" required>
+        </div>
+        
+        <div class="col-md-3">
+          <label for="Country" class="form-label">Country:</label>
+          <select id="Country" name="EmpCountry" class="form-select" required>
+            <option hidden selected value="{{auth_user.user_country}}">{{auth_user.user_country}}</option>
+            {% for country in countries %}
+            <option  value="{{country}}">{{country}}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+          <div class="col-md-3">
+            <label for="Location" class="form-label">Location:</label>
+            <select id="Location" name="EmpLocation" class="form-select" required>
+              <option hidden selected value="{{auth_user.user_location}}">{{auth_user.user_location}}</option>
+
+            </select>
+            
+          </div>
+          <div class="col-md-3">
+            <label for="IsManager" class="form-label">Is Manager?:</label>
+            <select class="form-select" name="IsManager" id="IsManager" required>
+              <option hidden selected value="{{auth_user.is_manager}}">{{auth_user.is_manager}}</option>
+              <option value="1">True</option>
+              <option value="0">False</option>
+            </select>
+          </div>
+          
+          <div class="col-md-3">
+            <label for="Excluded" class="form-label">Excluded:</label>
+            <select class="form-select" name="Excluded" id="Excluded" required>
+              <option hidden selected value="{{auth_user.exclude_from_calculation}}">{{auth_user.exclude_from_calculation}}</option>
+              <option value="1">True</option>
+              <option value="0">False</option>
+            </select>
+          </div>
+
+
+
+
+          <div class="col-md-6" style="text-align:left;">
+            <input type="submit" value="Update" class="btn btn-sm btn-outline-primary">
+          </div>
+  
+          <div class="col-md-6" style="text-align:right;">
+            <a class="btn btn-sm btn-warning" href="{% url 'AuthUser_View'%}">Cancel</a>
+          </div>
+
+      </form> 
+  </div>
+</div>
+</div>
+
+<script>
+  window.onload = function() {
+
+  const countryDropdown = document.getElementById("input_Country");
+  const locationDropdown = document.getElementById("input_Location");
+
+  const locationsByCountry = {
+    India: ["Bangalore", "Chennai", "Gurgaon", "Indore", "Hyderabad", "Mohali", "Mumbai", "Pune"],
+    Philippines: ["Manila", "Cebu City", "Makati City"],
+  };
+
+  function updateLocationDropdown() {
+    const selectedCountry = countryDropdown.value;
+    locationDropdown.innerHTML = '<option hidden selected value="">Location</option>';
+    if (selectedCountry) {
+      locationsByCountry[selectedCountry].forEach(location => {
+        const option = document.createElement("option");
+        option.text = location;
+        option.value = location;
+        locationDropdown.add(option);
+      });
+    }
+  }
+  countryDropdown.addEventListener("change", updateLocationDropdown);
+  };
+</script>
+{% endblock  %}
+
+

@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% load tz %}
+{% block title %}Routine Waste Disposal Data{% endblock%}
+{% block body %}
+
+<div class="container-fluid my-2" style="text-align:center;">
+  <div class="container my-2">
+    <div class="btn-group">
+      <a href="{% url 'Routine_View' %}" class="btn btn-sm btn-outline-dark" >Routine Waste </a>
+      <a href="{% url 'Non_Routine_View' %}" class="btn btn-sm btn-outline-dark">Non-Routine Waste</a>
+      <a href="{% url 'E_Waste_View' %}" class="btn btn-sm btn-outline-dark" >E-Waste</a>
+      <a href="{% url 'ESG_Data' %}" class="btn btn-sm btn-outline-dark active" aria-current="page">ESG Data</a>
+    </div>
+  </div>
+
+  <form class='form-group row my-3' method="get" action="/ESG_Data">
+    <div class="container row">
+        <div class="col">
+            <label for="year">Year:</label>
+            <select id="year" name="year">
+                <option selected value="All">All</option>
+                {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col">
+          <label for="quarter">Quarter:</label>
+          <select id="quarter" name="quarter">
+              <option selected value="All">All</option>
+              {% for quarter in quarters %}
+              <option value="{{ quarter }}">Q{{quarter}}</option>
+              {% endfor %}
+          </select>
+      </div>
+    
+        <div class="col">
+            <label for="month">Month:</label>
+            <select id="month" name="month">
+                <option selected value="All">All</option>
+                {% for month in months %}
+                <option value="{{ month }}">{{month|get_month_name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col">
+          <label for="country">Country:</label>
+          <select id="country" name="country">
+              <option selected value="All">All</option>
+              {% for country in countries %}
+              <option value="{{ country }}">{{ country }}</option>
+              {% endfor %}
+          </select>
+      </div>
+
+        <div class="col">
+            <label for="location">Location:</label>
+            <select id="location" name="location">
+                <option selected value="All">All</option>
+                {% for location in locations %}
+                <option value="{{ location }}">{{ location }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col">
+            <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+        </div>
+    </div>
+  </form>
+  
+  {% if error_message %}
+  <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+      <img src="/static/img/info.png" alt="info" height="22">
+      <div class="container">
+          {{ error_message }}
+      </div>
+  </div>
+  {% else %}
+
+  <div class="container my-2"> <h5>ESG Data</h5></div>
+    <table class="table table-hover table-borderless table-sm" style="vertical-align: middle;">
+        <thead>
+          <tr>
+            <th>Record ID</th>
+            <th>Month</th>
+            <th>Location</th>
+            <th>Function</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Severity</th>
+            <th>Type</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Remarks</th>
+            <th>Details</th>
+            {% if request.user|user_in_group:"Admin-Leaders"%}
+            <th colspan="2" scope="col">Action</th>
+            {% endif %}
+
+          </tr>
+        </thead>
+
+        <tbody id="geeks">
+          {% for data in esg_dataset %}
+          <tr>
+            <th>ESG/{{data.id}}</th>
+            <td>{{data.Month|get_month_name}}-{{data.Year}}</td>
+            <td>{{data.Location}}</td>
+            <td>{{data.Function}}</td>
+            <td>{{data.Description}}</td>
+            <td>{{data.Category}}</td>
+            <td>{{data.Severity}}</td>
+            <td>{{data.Type}}</td>
+            <td>{{data.Unit}}</td>
+            <td>{{data.Quantity}}</td>
+            <td>{{data.Remarks}}</td>
+            <td><a type="button" class="btn btn-sm" style="color: green; font-weight: bold;" href="{% url 'ESG_Details' data.id %}">View Details</a></td>
+            {% if request.user|user_in_group:"Admin-Leaders"%}
+            <td scope="row"><a type="button" class="btn btn-sm" href="{% url 'Update_ESG' data.id %}">
+               <img src="/static/img/edit.png" alt="Edit" height="12"> </a></td>
+            {% endif %}
+            {% if request.user|user_in_group:"Site-Admin"%} 
+            <td><form action="{% url 'Delete_ESG' data.id  %}" method="POST" id="delete-form">
+              {% csrf_token %}
+              <button id="delete-btn" onclick="return confirm('Are you sure you want to delete this item? Please note that deleted record cannot be restored.');" type="submit" class="btn btn-sm">
+              <img src="/static/img/delete.png" alt="Delete" height="12"></button>
+              </form></td>
+              {% endif %}
+          </tr> 
+          {% endfor %}
+        </tbody>
+    </table>
+      
+  </div>  
+
+  <!-- Downloadable Excel File -->
+  <div class="container my-2" id="no-display">
+    <table class="table table-hover table-borderless table-sm" style="vertical-align: middle;" id="toExcel">
+        <thead>
+          <tr>
+            <th>Record ID</th>
+            <th>Month</th>
+            <th>Country</th>
+            <th>Location</th>
+            <th>Function</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Severity</th>
+            <th>Type</th>
+            <th>Unit</th>
+            <th>Quantity</th>
+            <th>Disposed By</th>
+            <th>Verified By</th>
+            <th>Remarks</th>
+
+          </tr>
+        </thead>
+
+        <tbody id="geeks">
+          {% for data in esg_dataset %}
+          <tr>
+            <th>ESG/{{data.id}}</th>
+            <td>{{data.Month|get_month_name}}-{{data.Year}}</td>
+            <td>{{data.Country}}</td>
+            <td>{{data.Location}}</td>
+            <td>{{data.Function}}</td>
+            <td>{{data.Description}}</td>
+            <td>{{data.Category}}</td>
+            <td>{{data.Severity}}</td>
+            <td>{{data.Type}}</td>
+            <td>{{data.Unit}}</td>
+            <td>{{data.Quantity}}</td>
+            <td>{{data.Entered_By.username}}</td>
+            <td>{{data.Verified_By.username}}</td>
+            <td>{{data.Remarks}}</td>
+          </tr> 
+          {% endfor %}
+        </tbody>
+    </table>
+  </div>
+
+
+  <div class="container" style="text-align:center;">
+    <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+  </div>
+  {% endif %}
+</div>
+
+
+<script>
+  function loadFilters() {
+    const filters = ['year', 'quarter', 'month', 'location', 'country'];
+    filters.forEach(filter => {
+      const savedValue = localStorage.getItem(filter);
+      if (savedValue) {
+        document.getElementById(filter).value = savedValue;
+      }
+    });
+  }
+  const filterElements = document.querySelectorAll('select');
+  filterElements.forEach(filterElement => {
+    filterElement.addEventListener('change', function(){
+      localStorage.setItem(this.id, this.value);
+    });
+  });
+  window.addEventListener('DOMContentLoaded', loadFilters)
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Update Presentation{% endblock %}
+{% block body %}
+
+<div class="container col-md-6 my-3 shadow" style=" border:solid 1px lightgrey; padding: 10px;">
+    <div class="container" style="background-color: green; color: white; border: solid 1px lightgray; padding: 5px;">
+        <h4>Awareness/ Training Course Version Approval</h4>
+    </div>
+    <div class="container my-3">
+        <h5> {{course.title}} v{{course.version|floatformat:2}}</h5>
+        <form class="row g-3" method="POST" enctype="multipart/form-data" >
+            {% csrf_token %}
+
+            <table class="table table-borderless">
+                <tbody>
+                    <tr>
+                        <th>Course Name: </th><td>{{course.title}}</td>
+                    </tr>
+
+                    <tr>
+                        <th>Version: </th><td>v {{course.version|floatformat:2}}</td>
+                    </tr>
+
+                    
+                    <tr>
+                        <th>Updated File: </th><td><a href="{{course.pdf_file.url}}" target="_blank" style="text-decoration: none; color: brown;">View Document</a></td>
+                    </tr>
+                    <tr>
+                        <th>Change Description: </th><td>{{course.change_desc}}</td>
+                    </tr>
+                    <tr>
+                        <th>Created By: </th><td>{% if course.updated_by == none %}{{course.uploaded_by.last_name}}, {{course.uploaded_by.first_name}} {% else %} {{course.updated_by.last_name}}, {{course.updated_by.first_name}}{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <th>Created At: </th><td>{% if course.uploaded_by == none %}{{course.updated_at}} {% else %} {{course.uploaded_at}}{% endif %}</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+
+            <div class="col-12" style="text-align: center;">
+                <button class="btn btn-outline-dark btn-sm" type="submit">Approve</button>
+            </div>
+        </form>
+        {% if success_message %}
+        <div class=" flex alert alert-success" role="alert" style="text-align:center;">
+            {{success_message}}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock  %}

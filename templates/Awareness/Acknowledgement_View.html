@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %} View Acknowledgements{% endblock %}
+{% block body %}
+
+<div class="container-fluid my-3" style="text-align: center;">
+    <form class='form-group row my-3' method="get" action="/acknowledgement_view">
+        <div class="col">
+          <label for="course_year">Year:</label>
+          <select id="course_year" name="course_year">
+              <option value="All">All</option>
+              {% for year in course_years %}
+              <option value="{{ year }}">{{ year }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <label for="course_quarter">Quarter:</label>
+          <select id="course_quarter" name="course_quarter">
+            <option value="All">All</option>
+            {% for quarter in course_quarters %}
+            <option value="{{ quarter }}">{{quarter}}</option>
+            {% endfor %}
+          </select>
+        </div>
+    
+        <div class="col">
+            <label for="course_month">Month:</label>
+            <select id="course_month" name="course_month">
+                <option value="All">All</option>
+                {% for month in course_months %}
+                <option value="{{ month }}">{{month|get_month_name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% if request.user|user_in_group:"Admin-Leaders"%}
+        <div class="col">
+          <label for="user_country">Country:</label>
+          <select id="user_country" name="user_country">
+              <option value="All">All</option>
+              {% for country in user_countries %}
+              <option value="{{ country }}">{{ country }}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+            <label for="user_location">Location:</label>
+            <select id="user_location" name="user_location">
+                <option value="All">All</option>
+                {% for location in user_locations %}
+                <option value="{{ location }}">{{ location }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <div class="col">
+            <input class="btn btn-sm btn-outline-success" type="submit" value="Search">
+        </div>
+    
+      </form>
+    
+    
+    {% if error_message %}
+    <div class="container col-md-3 alert alert-primary d-flex my-3" role="alert">
+        <img src="/static/img/info.png" alt="info" height="22">
+        <div class="container">
+            {{ error_message }}
+        </div>
+    </div>
+    {% else %}
+
+    <h4>View Course Acknowledgement Details</h4>
+    <table class="table table-sm table-borderless" id="toExcel">
+        <thead>
+            <tr>
+                <th>Sr. No.</th>
+                <th>Year</th>
+                <th>Quarter</th>
+                <th>Month</th>
+                <th>Location</th>
+                <th>Course Name</th>
+                <th>User EID</th>
+                <th>User Name</th>
+                <th>Acknowledgement Status</th>
+                <th>Feedback/ Suggestions</th>
+                <th>Acknowledged At</th>
+            </tr>
+        </thead>
+        <tbody id="geeks">
+            {% for ack in acknowledgements %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{ack.course_year}}</td>
+                <td>Q{{ack.course_quarter}}</td>
+                <td>{{ack.course_month|get_month_name}}</td>
+                <td>{{ack.user_location}}</td>
+                <td>{{ack.course_name}}: v{{ack.course_version|floatformat:2}}</td>
+                <td>{{ack.userid}}</td>
+                <td>{{ack.user_name}}</td>
+                <td>{{ack.acknowledgement_status}}</td>
+                <td>{{ack.feedback_suggestion}}</td>
+                <td>{{ack.acknowledgement_date}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="container">
+        <button class="button btn-sm btn-primary" onclick="exceller()">Download To Excel</button>
+      </div>
+      {% endif %}
+</div>
+{% endblock  %}
+

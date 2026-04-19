@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}ESG Data Input{% endblock  %}
+{% block body %}
+
+<div class="container my-1 col-md-9" style="text-align:center;">
+    <div class="btn-group" >
+        <a href="{% url 'WM_Routine_Input' %}" class="btn btn-sm btn-outline-dark" aria-current="page">Routine Waste</a>
+        <a href="{% url 'WM_Non_Routine_Input' %}" class="btn btn-sm btn-outline-dark">Non-Routine Waste</a>
+        <a href="{% url 'WM_EWaste_Input' %}" class="btn btn-sm btn-outline-dark" aria-current="page">E-Waste</a>
+        <a href="{% url 'ESG_Input' %}" class="btn btn-sm btn-outline-dark active" aria-current="page">ESG Data</a>
+
+    </div>
+</div>
+
+<div class="container col-md-9">
+    <h4 class="shadow" style="padding: 5px; background-color: navy; color: aliceblue;">ESG Data Input</h4>
+    <div class="container shadow" style="padding: 5px; border: solid 1px lightgrey;">
+        <form class="form-group row g-3" action="/esg_input" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="container-flex row g-3">
+                <div class="col">
+                    <label class="form-label-sm" for="disposalMonth">Month:</label>
+                    <input class="form-control" name="disposalMonth" id="disposalMonth" type="month" required>
+                </div>
+                <div class="col">
+                    <label class="form-label-sm" for="Country">Country:</label>
+                    <select id="Country" name="Country" class="form-select" required>
+                        {% if request.user|user_in_group:"Admin-Leaders"%}
+                        <option hidden selected value="">--Country--</option>
+                        {% for country in countries %}
+                        <option  value="{{country}}">{{country}}</option>
+                        {% endfor %}
+                        {% else %}
+                        <option value="{{user_country}}">{{user_country}}</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col">
+                    <label class="form-label-sm" for="Location">Location:</label>
+                    <select id="Location" name="Location" class="form-select" required>
+                        {% if request.user|user_in_group:"Admin-Leaders"%}
+                    <option hidden selected value="">--Location--</option>
+                        {% else %}
+                    <option value="{{user_location}}">{{user_location}}</option>
+                    {% endif %}
+                    </select>
+                        
+                </div>
+                <div class="col">
+                    <label class="form-label-sm" for="Function">Function:</label>
+                    <select class="form-select" name="Function" id="Function" required>
+                        <option hidden selected value="">--Function--</option>
+                        <option value="Facilities">Facilities</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Physical Security">Physical Security</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="itemDesc">Description:</label>
+                    <input class="form-control" name="itemDesc" id="itemDesc" type="text" required>
+                </div>
+            </div>
+            <div class="container-flex row g-3">
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="Category">Category:</label>
+                    <select class="form-select" name="Category" id="Category" required>
+                        <option hidden selected value="">--Category--</option>
+                        <option value="Energy">Energy</option>
+                        <option value="Drinking Water">Drinking Water</option>
+                        <option value="General Purpose Water">General Purpose Water</option>
+                        <option value="Chiller Water">Chiller Water</option>
+                        <option value="DG Oil">DG Oil</option>
+                        <option value="Fire Suppression Gas">Fire Suppression Gas</option>
+                        <option value="Refigerent Gas">Refigerent Gas</option>
+                        <option value="Batteries">Batteries</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label class="form-label-sm" for="Type">Type:</label>
+                    <select class="form-select" name="Type" id="Type" required>
+                        <option hidden selected value="">--Type--</option>
+                        <option value="Consumption">Consumption</option>
+                        <option value="Leakage">Leakage</option>
+                        <option value="Spillage">Spillage</option>
+                        <option value="End Of Life">End Of Life</option>
+                    </select>
+                </div>
+
+                <div class="col">
+                    <label class="form-label-sm" for="Severity">Severity:</label>
+                    <select class="form-select" name="Severity" id="Severity" required>
+                        <option hidden selected value="">--Severity--</option>
+                        <option value="Bio-Degradable">Bio-Degradable</option>
+                        <option value="Non-Degradable">Non-Degradable</option>
+                        <option value="Hazardous">Hazardous</option>
+                        <option value="Non-Hazardous">Non-Hazardous</option>
+                        <option value="Not Applicable">Not Applicable</option>
+                    </select>
+                </div>
+
+                
+                <div class="col">
+                    <label class="form-label-sm" for="Unit">Unit:</label>
+                    <select class="form-select" name="Unit" id="Unit" required>
+                        <option hidden selected value="">--Unit--</option>
+                        <option value="KWH">KWH</option>
+                        <option value="KG">KG</option>
+                        <option value="Liter">Liter</option>
+                        <option value="Count">Count</option>
+                    </select>
+                </div>
+
+                <div class="col">
+                    <label class="form-label-sm" for="Quantity">Quantity:</label>
+                    <input class="form-control" name="Quantity" id="Quantity" type="number" required step="0.01">
+                </div>
+
+            <div class="row g-3 my-3"> 
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="Evidence_1">Evidence 1:</label>
+                    <input class="form-control" name="evidence1" id="Evidence_1" type="file" style="color:red;">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="Evidence_2">Evidence 2:</label>
+                    <input class="form-control" name="evidence2" id="Evidence_2" type="file" style="color:red;">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="Evidence_3">Evidence 3:</label>
+                    <input class="form-control" name="evidence3" id="Evidence_3" type="file" style="color:red;">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="Evidence_4">Evidence 4:</label>
+                    <input class="form-control" name="evidence4" id="Evidence_4" type="file" style="color:red;">
+                </div>
+            </div> 
+
+            </div>
+            <div class="container-flex row g-3">
+                {% comment %} <div class="col-md-3">
+                    <label class="form-label-sm" for="disposedBy">Disposed By:</label>
+                    <select class="form-select" name="disposedBy" id="disposedBy" required>
+                        <option hidden selected value="">--Disposed By--</option>
+                        {% for user  in UserFilter %}
+                        <option value="{{user}}">{{user}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label-sm" for="verifiedBy">Verified By:</label>
+                    <select class="form-select" name="verifiedBy" id="verifiedBy" required>
+                        <option hidden selected value="">--Verified By--</option>
+                        {% for user  in UserFilter %}
+                        {% if request.user|user_in_group:"Admin-Leaders"%}
+                        <option value="{{user}}">{{user}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div> {% endcomment %}
+
+                <div class="col-md-6">
+                    <label class="form-label-sm" for="Remarks">Remarks:</label>
+                    <input class="form-control" name="Remarks" id="Remarks" type="text">
+                </div>
+            </div>
+            <div class="container my-3" style="text-align: center;">
+                <input class="btn btn-outline-dark btn-sm" type="submit">
+            </div>
+
+        </form>
+        {% if success_message %}
+        <div class="flex alert alert-success my-3" role="alert" style="text-align:center;">
+        {{success_message}}
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

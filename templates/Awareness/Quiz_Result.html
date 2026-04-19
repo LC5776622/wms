@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}Results{% endblock %}
+{% block body %}
+
+<script src="{% static 'scripts/html2pdf.min.js' %}"></script>
+<style>
+    #score>table>tbody>tr>td{
+        text-align: left;
+        
+    }
+    #certificate{background-image: url("/static/img/Cert.jpg"); background-repeat:no-repeat; background-size: auto; }
+</style>
+{% if error_message %}
+<div class="container col-md-5 alert alert-primary d-flex my-3" role="alert">
+    <img src="/static/img/info.png" alt="info" height="22">
+    <div class="container">
+        {{ error_message }}
+    </div>
+</div>
+{% else %}
+
+<div class="container-fluid my-3">
+    <h5>Results For {{user_name}}</h5>
+    <table class="table table-sm table-hover table-borderless">
+        <thead>
+            <tr>
+                <th>Course Name</th>
+                <th>Question</th>
+                <th>Your Answer</th>
+                <th>Correct Answer</th>
+                <th>Completed At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for response in user_responses %}
+            {% if response.question.course_id == course.id %}
+            <tr><td> {{response.question.course_name}}</td>
+                <td> {{response.question.question_text}}</td>
+                <td> {{response.selected_option}}</td>
+                {% if response.selected_option == response.question.correct_option %}
+                <td style="background-color: rgba(6, 100, 6, 0.699); color: white;"> <b>Correct</b></td>
+                {% else %}
+                <td style="background-color: red; color: white;"> <b>Incorrect</b></td>
+                {% endif %}
+                <td> {{response.completed_at}}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            
+        </tbody>
+    </table>
+    <div class="col-md-3 my-5">
+        <h5 style="text-align: left;"><u>Final Results:</u></h5>
+        <table class=" table table-borderless table-sm">
+            <tbody>
+                <tr><td style="text-align: left;">Total Questions: </td><td>{{total_questions}}</td></tr>
+                <tr><td style="text-align: left;">Correct Answers: </td><td>{{correct_answers}}</td></tr>
+                <tr><td style="text-align: left;">Score: </td><td><b>{{percentage}}%</b></td></tr>
+                <tr><td style="text-align: left;">Status: </td><td>{% if percentage >= 80 %}<b style="color: green;">Passed</b> {% else %} <b style="color: red;">Failed</b> {% endif %}</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="container-fluid" id="no-display">
+    <div class="container my-5 shadow" id="certificate" style="position: relative; background:img; height: 576px; width: 864px;">
+        <br>
+        <div class="container col-md-10 my-5" style="text-align: center;">
+            <h1 style="font-family: fantasy; font-size: 3rem; padding: 10px; color: rgb(102, 44, 2);">Certificate Of Completion</h1>
+        </div>
+            <div class="container col-10" style="padding: 25px; text-align: justify;" >
+                <p style="font-size: 1.5rem; font-family:Lucida Grande;"><i>This is to certify that <b> {{request.user.first_name}} {{request.user.last_name}}</b> has successfully completed <b>"{{course.title}}"</b> Internal Training/ Awareness Course.</i></p>
+                <DIV class="CONTAINER my-5">
+                    <h5 style="text-align: left; ">Completion Date: {{completion_date}}</h5>
+                </DIV>
+                <DIV class="CONTAINER my-3">
+                    <h5 style="text-align: left; ">Score: {{percentage}}%</h5> 
+                </DIV>
+
+                <DIV class="CONTAINER my-5" style="text-align: center;">
+                    FIS Global Business Solutions India Pvt. Ltd.
+                </DIV>
+            </div>
+    </div>
+</div>
+{% if percentage >= 80 %}
+<div class="container col-md-9 my-3" style="text-align: center;">
+    <button class="btn btn-sm btn-success" type="button" onclick="pdfDownload()">Download Cerficate</button>
+</div>
+{% else %}
+<div class="container col-md-9 my-5" style="text-align:center">
+    <a class="btn btn-sm btn-warning" href="{% url 'Retake_Quiz' course.id %}">Re-Take Quiz</a>
+</div>
+{% endif %}
+<br>
+<hr>
+{% endif %}
+
+<script>
+    function pdfDownload(){
+      var pdfElements = document.getElementById("certificate")
+      html2pdf(pdfElements, {
+      margin: 5,
+      filename: '{{course.title}} Completion Cerficate.pdf',
+      image : {type:'jpeg', quality: .90},
+      html2canvas : {scale:1, logging:true, dpi: 192, letterRendering: true},
+      jsPDF : {unit:'mm', format :'A4', orientation: 'landscape'}
+    });
+    };
+  </script>
+
+{% endblock %}
